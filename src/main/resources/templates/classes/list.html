@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Liste des Classes')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="card-header" style="margin: 0;">📚 Liste des Classes</h2>
+            <a href="/classes/new" class="btn btn-primary">+ Nouvelle Classe</a>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Branche</th>
+                    <th>Type</th>
+                    <th>Montant Mensuel</th>
+                    <th>Année Financière</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="class : ${classes}">
+                    <td>
+                        <div th:text="${class.nameFr}">Nom FR</div>
+                        <small style="color: #7f8c8d;" th:text="${class.nameAr}">Nom AR</small>
+                    </td>
+                    <td th:text="${class.branchName}">Branche</td>
+                    <td><span class="badge badge-info" th:text="${class.classType.frenchName}">Type</span></td>
+                    <td th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                    <td th:text="${class.currentFinancialYear}">1</td>
+                    <td>
+                        <span th:if="${class.active}" class="badge badge-success">Active</span>
+                        <span th:unless="${class.active}" class="badge badge-warning">Inactive</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/classes/{id}(id=${class.id})}" class="btn btn-primary btn-sm">Voir</a>
+                        <a th:href="@{/classes/{id}/edit(id=${class.id})}" class="btn btn-secondary btn-sm">Modifier</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

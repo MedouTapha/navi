@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Liste des Branches')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+    <div class="card">
+        <h2 class="card-header">🏢 Liste des Branches</h2>
+
+        <div class="grid">
+            <div th:each="branch : ${branches}" class="card">
+                <h3 th:text="${branch.nameFr}">Branche</h3>
+                <p><strong>Nom Arabe:</strong> <span th:text="${branch.nameAr}">Arabic</span></p>
+                <p><strong>Nombre de classes:</strong> <span th:text="${branch.totalClasses}">0</span></p>
+                <p><strong>Dépenses du mois:</strong> <span th:text="${#numbers.formatDecimal(branch.monthlyExpenses, 0, 'COMMA', 2, 'POINT')}">0.00</span> MRU</p>
+                <div style="margin-top: 15px;">
+                    <a th:href="@{/branches/{id}(id=${branch.id})}" class="btn btn-primary btn-sm">Voir détails</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

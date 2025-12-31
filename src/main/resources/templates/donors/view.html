@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Détails du Donateur')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h2 style="margin: 0;" th:text="${donor.fullName}">Nom du donateur</h2>
+                <p style="color: #7f8c8d; margin: 5px 0;">
+                    <strong>Téléphone:</strong> <span th:text="${donor.telephone}">Téléphone</span>
+                    <span th:if="${donor.email}"> | <strong>Email:</strong> <span th:text="${donor.email}">Email</span></span>
+                </p>
+            </div>
+            <div>
+                <a th:href="@{/donors/{id}/edit(id=${donor.id})}" class="btn btn-primary">Modifier</a>
+                <a th:href="@{/api/reports/donor/{id}/payments(id=${donor.id})}" class="btn btn-success" target="_blank">Rapport PDF</a>
+            </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="stats-card">
+                <h3>Total Engagements</h3>
+                <div class="value" th:text="${#numbers.formatDecimal(donor.totalCommitments, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0 MRU</div>
+            </div>
+            <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <h3>Total Payé</h3>
+                <div class="value" th:text="${#numbers.formatDecimal(donor.totalPaid, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0 MRU</div>
+            </div>
+            <div class="stats-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <h3>Solde Restant</h3>
+                <div class="value" th:text="${#numbers.formatDecimal(donor.remainingBalance, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0 MRU</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 class="card-header">📋 Engagements</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Classe</th>
+                <th>Année Financière</th>
+                <th>Montant Engagé</th>
+                <th>Montant Payé</th>
+                <th>Solde Restant</th>
+                <th>Statut</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="commitment : ${commitments}">
+                <td th:text="${commitment.className}">Classe</td>
+                <td th:text="${commitment.financialYear}">1</td>
+                <td th:text="${#numbers.formatDecimal(commitment.annualAmount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td style="color: #27ae60; font-weight: 600;" th:text="${#numbers.formatDecimal(commitment.totalPaid, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td style="color: #e74c3c; font-weight: 600;" th:text="${#numbers.formatDecimal(commitment.remainingBalance, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td>
+                    <span th:if="${commitment.fullyPaid}" class="badge badge-success">✓ Payé</span>
+                    <span th:unless="${commitment.fullyPaid}" class="badge badge-warning">En cours</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3 class="card-header">💳 Historique des Paiements</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Classe</th>
+                <th>Montant</th>
+                <th>Moyen de Paiement</th>
+                <th>N° Reçu</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="payment : ${payments}">
+                <td th:text="${#temporals.format(payment.paymentDate, 'dd/MM/yyyy')}">Date</td>
+                <td th:text="${payment.className}">Classe</td>
+                <td style="color: #27ae60; font-weight: 600;" th:text="${#numbers.formatDecimal(payment.amount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td th:text="${payment.paymentMethod.displayName}">Moyen</td>
+                <td th:text="${payment.receiptNumber}">-</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/donors" class="btn btn-secondary">Retour</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Détails de la Branche')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+    <div class="card">
+        <h2 class="card-header" th:text="${branch.nameFr}">Branche</h2>
+
+        <div style="margin-bottom: 20px;">
+            <p><strong>Nom Arabe:</strong> <span th:text="${branch.nameAr}">Arabic</span></p>
+            <p><strong>Nombre de classes:</strong> <span th:text="${branch.totalClasses}">0</span></p>
+            <p><strong>Dépenses mensuelles:</strong> <span th:text="${#numbers.formatDecimal(branch.monthlyExpenses, 0, 'COMMA', 2, 'POINT')}">0.00</span> MRU</p>
+        </div>
+
+        <h3>Classes de la branche</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Type</th>
+                <th>Montant Mensuel</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="class : ${classes}">
+                <td>
+                    <div th:text="${class.nameFr}">Nom FR</div>
+                    <small style="color: #7f8c8d;" th:text="${class.nameAr}">Nom AR</small>
+                </td>
+                <td><span class="badge badge-info" th:text="${class.classType.frenchName}">Type</span></td>
+                <td th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td>
+                    <span th:if="${class.active}" class="badge badge-success">Active</span>
+                    <span th:unless="${class.active}" class="badge badge-warning">Inactive</span>
+                </td>
+                <td>
+                    <a th:href="@{/classes/{id}(id=${class.id})}" class="btn btn-primary btn-sm">Voir</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top: 20px;">
+            <a href="/branches" class="btn btn-secondary">Retour</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

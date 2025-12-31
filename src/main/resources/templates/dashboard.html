@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tableau de Bord')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+    <div class="card">
+        <h2 class="card-header">📊 Tableau de Bord</h2>
+
+        <div class="grid">
+            <div class="stats-card">
+                <h3>Branches Actives</h3>
+                <div class="value" th:text="${#lists.size(branches)}">0</div>
+            </div>
+
+            <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <h3>Total Classes</h3>
+                <div class="value" th:text="${totalClasses}">0</div>
+            </div>
+
+            <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <h3>Total Donateurs</h3>
+                <div class="value" th:text="${totalDonors}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 class="card-header">🏢 Branches</h3>
+        <div class="grid">
+            <div th:each="branch : ${branches}" class="card">
+                <h4 th:text="${branch.nameFr}">Branche</h4>
+                <p><strong>عربي:</strong> <span th:text="${branch.nameAr}">Arabic name</span></p>
+                <p><strong>Classes:</strong> <span th:text="${branch.totalClasses}">0</span></p>
+                <p><strong>Dépenses mensuelles:</strong> <span th:text="${#numbers.formatDecimal(branch.monthlyExpenses, 0, 'COMMA', 2, 'POINT')}">0</span> MRU</p>
+                <a th:href="@{/branches/{id}(id=${branch.id})}" class="btn btn-primary btn-sm">Voir détails</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

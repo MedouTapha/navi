@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Formulaire Donateur')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+    <div class="card">
+        <h2 class="card-header" th:text="${donor != null} ? 'Modifier le Donateur' : 'Nouveau Donateur'">Formulaire Donateur</h2>
+
+        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <p style="margin: 0;">⚠️ Utilisez l'API REST pour créer/modifier un donateur via <code>/api/donors</code></p>
+            <p style="margin: 5px 0 0 0;">Cette page affiche uniquement le formulaire pour référence.</p>
+        </div>
+
+        <form id="donorForm">
+            <div class="form-group">
+                <label for="firstName">Prénom *</label>
+                <input type="text" class="form-control" id="firstName" name="firstName" required
+                       th:value="${donor != null} ? ${donor.firstName} : ''">
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Nom *</label>
+                <input type="text" class="form-control" id="lastName" name="lastName" required
+                       th:value="${donor != null} ? ${donor.lastName} : ''">
+            </div>
+
+            <div class="form-group">
+                <label for="telephone">Téléphone *</label>
+                <input type="tel" class="form-control" id="telephone" name="telephone" required
+                       th:value="${donor != null} ? ${donor.telephone} : ''">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email"
+                       th:value="${donor != null} ? ${donor.email} : ''">
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes</label>
+                <textarea class="form-control" id="notes" name="notes" rows="3"
+                          th:text="${donor != null} ? ${donor.notes} : ''"></textarea>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-primary" onclick="alert('Utilisez l\'API REST pour soumettre le formulaire')">
+                    Enregistrer
+                </button>
+                <a href="/donors" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

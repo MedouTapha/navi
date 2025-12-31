@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Détails de la Classe')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h2 style="margin: 0;" th:text="${class.nameFr}">Nom de la classe</h2>
+                <p style="color: #7f8c8d; margin: 5px 0;" th:text="${class.nameAr}">Arabic Name</p>
+            </div>
+            <a th:href="@{/classes/{id}/edit(id=${class.id})}" class="btn btn-primary">Modifier</a>
+        </div>
+
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
+            <div>
+                <strong>Branche:</strong>
+                <p th:text="${class.branchName}">Branche</p>
+            </div>
+            <div>
+                <strong>Type:</strong>
+                <p><span class="badge badge-info" th:text="${class.classType.frenchName}">Type</span></p>
+            </div>
+            <div>
+                <strong>Montant Mensuel:</strong>
+                <p th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</p>
+            </div>
+            <div>
+                <strong>Année Financière:</strong>
+                <p th:text="${class.currentFinancialYear}">1</p>
+            </div>
+            <div>
+                <strong>Date de début:</strong>
+                <p th:text="${#temporals.format(class.startDate, 'dd/MM/yyyy')}">01/01/2024</p>
+            </div>
+            <div>
+                <strong>Statut:</strong>
+                <p>
+                    <span th:if="${class.active}" class="badge badge-success">Active</span>
+                    <span th:unless="${class.active}" class="badge badge-warning">Inactive</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 class="card-header">💰 Statistiques Financières</h3>
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="stats-card">
+                <h3>Total Dépenses</h3>
+                <div class="value" th:text="${#numbers.formatDecimal(class.totalExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0 MRU</div>
+            </div>
+            <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <h3>Total Donations</h3>
+                <div class="value" th:text="${#numbers.formatDecimal(class.totalDonations, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0 MRU</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 class="card-header">📋 Dépenses</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Montant</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="expense : ${expenses}">
+                <td th:text="${#temporals.format(expense.expenseDate, 'dd/MM/yyyy')}">Date</td>
+                <td>
+                    <span th:if="${expense.expenseType.name() == 'FIXED'}" class="badge badge-info">Fixe</span>
+                    <span th:if="${expense.expenseType.name() == 'EXTRA'}" class="badge badge-warning">Extra</span>
+                </td>
+                <td th:text="${#numbers.formatDecimal(expense.amount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td th:text="${expense.description}">Description</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3 class="card-header">🤝 Engagements</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Donateur</th>
+                <th>Année Financière</th>
+                <th>Montant Engagé</th>
+                <th>Montant Payé</th>
+                <th>Solde Restant</th>
+                <th>Statut</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="commitment : ${commitments}">
+                <td th:text="${commitment.donorName}">Donateur</td>
+                <td th:text="${commitment.financialYear}">1</td>
+                <td th:text="${#numbers.formatDecimal(commitment.annualAmount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td th:text="${#numbers.formatDecimal(commitment.totalPaid, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td th:text="${#numbers.formatDecimal(commitment.remainingBalance, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td>
+                    <span th:if="${commitment.fullyPaid}" class="badge badge-success">Payé</span>
+                    <span th:unless="${commitment.fullyPaid}" class="badge badge-warning">En cours</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/classes" class="btn btn-secondary">Retour</a>
+    </div>
+</div>
+
+</body>
+</html>
