@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Liste des Branches')}"></head>
+<head th:replace="~{fragments/layout :: head('قائمة الفروع')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <div class="container">
     <div class="card">
-        <h2 class="card-header">🏢 Liste des Branches</h2>
+        <h2 class="card-header">🏢 قائمة الفروع</h2>
 
         <div class="grid">
             <div th:each="branch : ${branches}" class="card">
-                <h3 th:text="${branch.nameFr}">Branche</h3>
-                <p><strong>Nom Arabe:</strong> <span th:text="${branch.nameAr}">Arabic</span></p>
-                <p><strong>Nombre de classes:</strong> <span th:text="${branch.totalClasses}">0</span></p>
-                <p><strong>Dépenses du mois:</strong> <span th:text="${#numbers.formatDecimal(branch.monthlyExpenses, 0, 'COMMA', 2, 'POINT')}">0.00</span> MRU</p>
+                <h3 th:text="${branch.nameAr}">الفرع</h3>
+                <p><strong>عدد الفصول:</strong> <span th:text="${branch.totalClasses}">0</span></p>
+                <p><strong>مصاريف الشهر:</strong> <span th:text="${#numbers.formatDecimal(branch.monthlyExpenses, 0, 'COMMA', 2, 'POINT')}">0.00</span> أوقية</p>
                 <div style="margin-top: 15px;">
-                    <a th:href="@{/branches/{id}(id=${branch.id})}" class="btn btn-primary" style="width: 100%;">Voir détails</a>
+                    <a th:href="@{/branches/{id}(id=${branch.id})}" class="btn btn-primary" style="width: 100%;">عرض التفاصيل</a>
                 </div>
             </div>
         </div>

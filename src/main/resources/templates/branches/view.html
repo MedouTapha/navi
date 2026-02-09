@@ -1,83 +1,82 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Détails de la Branche')}"></head>
+<head th:replace="~{fragments/layout :: head('تفاصيل الفرع')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <div class="container">
     <div class="card">
-        <h2 class="card-header" th:text="${branch.nameFr}">Branche</h2>
+        <h2 class="card-header" th:text="${branch.nameAr}">الفرع</h2>
 
         <div style="margin-bottom: 20px;">
-            <p><strong>Nom Arabe:</strong> <span th:text="${branch.nameAr}">Arabic</span></p>
-            <p><strong>Nombre de classes:</strong> <span th:text="${branch.totalClasses}">0</span></p>
-            <p><strong>Nombre de donateurs:</strong> <span th:text="${branch.totalDonors}">0</span></p>
+            <p><strong>عدد الفصول:</strong> <span th:text="${branch.totalClasses}">0</span></p>
+            <p><strong>عدد المتبرعين:</strong> <span th:text="${branch.totalDonors}">0</span></p>
         </div>
 
-        <h3 style="margin-top: 30px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">📊 Résumé Financier</h3>
+        <h3 style="margin-top: 30px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">📊 الملخص المالي</h3>
 
         <div class="financial-grid">
-            <!-- Bloc Paiements (Recettes) -->
+            <!-- المدفوعات المستلمة -->
             <div class="financial-block" style="background-color: #d4edda; border: 2px solid #28a745;">
-                <h4 style="color: #155724;">💰 Paiements Reçus</h4>
-                <p><strong>Total Engagements:</strong><br>
-                   <span th:text="${#numbers.formatDecimal(branch.totalCommitments, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
-                <p><strong>Total Payé:</strong><br>
-                   <span style="color: #28a745; font-size: 20px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalPaymentsReceived, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
-                <p><strong>Reste à recevoir:</strong><br>
-                   <span style="color: #dc3545; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.remainingToReceive, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
+                <h4 style="color: #155724;">💰 المدفوعات المستلمة</h4>
+                <p><strong>إجمالي التعهدات:</strong><br>
+                   <span th:text="${#numbers.formatDecimal(branch.totalCommitments, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</span></p>
+                <p><strong>إجمالي المدفوع:</strong><br>
+                   <span style="color: #28a745; font-size: 20px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalPaymentsReceived, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</span></p>
+                <p><strong>المتبقي للاستلام:</strong><br>
+                   <span style="color: #dc3545; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.remainingToReceive, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</span></p>
             </div>
 
-            <!-- Bloc Dépenses -->
+            <!-- المصروفات -->
             <div class="financial-block" style="background-color: #fff3cd; border: 2px solid #ffc107;">
-                <h4 style="color: #856404;">📉 Dépenses</h4>
-                <p><strong>Dépenses Annuelles:</strong><br>
-                   <span th:text="${#numbers.formatDecimal(branch.totalFixedExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
-                <p><strong>Dépenses Extra:</strong><br>
-                   <span th:text="${#numbers.formatDecimal(branch.totalExtraExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
-                <p><strong>Total Dépenses:</strong><br>
-                   <span style="color: #dc3545; font-size: 20px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
+                <h4 style="color: #856404;">📉 المصروفات</h4>
+                <p><strong>المصروفات السنوية:</strong><br>
+                   <span th:text="${#numbers.formatDecimal(branch.totalFixedExpenses, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</span></p>
+                <p><strong>المصروفات الإضافية:</strong><br>
+                   <span th:text="${#numbers.formatDecimal(branch.totalExtraExpenses, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</span></p>
+                <p><strong>إجمالي المصروفات:</strong><br>
+                   <span style="color: #dc3545; font-size: 20px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalExpenses, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</span></p>
             </div>
         </div>
 
-        <!-- Solde Final -->
+        <!-- الرصيد النهائي -->
         <div class="balance-block" th:style="${branch.balance >= 0 ? 'background-color: #d1ecf1; border: 3px solid #17a2b8;' : 'background-color: #f8d7da; border: 3px solid #dc3545;'}">
             <h3 th:style="${branch.balance >= 0 ? 'color: #0c5460;' : 'color: #721c24;'}">
-                💵 Solde (Paiements - Dépenses)
+                💵 الرصيد (المدفوعات - المصروفات)
             </h3>
-            <div class="balance-amount" th:text="${#numbers.formatDecimal(branch.balance, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</div>
+            <div class="balance-amount" th:text="${#numbers.formatDecimal(branch.balance, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</div>
             <p style="margin-top: 10px; font-size: 14px; color: #6c757d;">
-                <span th:if="${branch.balance >= 0}">✅ Situation positive</span>
-                <span th:unless="${branch.balance >= 0}">⚠️ Déficit</span>
+                <span th:if="${branch.balance >= 0}">✅ وضع إيجابي</span>
+                <span th:unless="${branch.balance >= 0}">⚠️ عجز مالي</span>
             </p>
         </div>
 
-        <h3 style="margin-top: 30px;">Classes de la branche</h3>
+        <h3 style="margin-top: 30px;">فصول الفرع</h3>
         <div class="table-wrapper">
         <table class="table">
             <thead>
             <tr>
-                <th>Nom</th>
-                <th>Type</th>
-                <th>Montant Mensuel</th>
-                <th>Statut</th>
-                <th>Actions</th>
+                <th>الاسم</th>
+                <th>النوع</th>
+                <th>المبلغ الشهري</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="class : ${classes}">
                 <td>
-                    <div th:text="${class.nameFr}">Nom FR</div>
-                    <small style="color: #7f8c8d;" th:text="${class.nameAr}">Nom AR</small>
+                    <div th:text="${class.nameAr}">الاسم بالعربية</div>
+                    <small style="color: #7f8c8d;" th:text="${class.nameFr}">Nom FR</small>
                 </td>
-                <td><span class="badge badge-info" th:text="${class.classType.frenchName}">Type</span></td>
-                <td th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td><span class="badge badge-info" th:text="${class.classType.arabicName}">النوع</span></td>
+                <td th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</td>
                 <td>
-                    <span th:if="${class.active}" class="badge badge-success">Active</span>
-                    <span th:unless="${class.active}" class="badge badge-warning">Inactive</span>
+                    <span th:if="${class.active}" class="badge badge-success">نشط</span>
+                    <span th:unless="${class.active}" class="badge badge-warning">غير نشط</span>
                 </td>
                 <td>
-                    <a th:href="@{/classes/{id}(id=${class.id})}" class="btn btn-primary btn-sm">Voir</a>
+                    <a th:href="@{/classes/{id}(id=${class.id})}" class="btn btn-primary btn-sm">عرض</a>
                 </td>
             </tr>
             </tbody>
@@ -85,7 +84,7 @@
         </div>
 
         <div style="margin-top: 20px;">
-            <a href="/branches" class="btn btn-secondary">Retour</a>
+            <a href="/branches" class="btn btn-secondary">رجوع</a>
         </div>
     </div>
 </div>

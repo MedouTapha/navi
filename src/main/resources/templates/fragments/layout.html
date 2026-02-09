@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" dir="rtl" lang="ar">
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title}">Navi Education</title>
+    <title th:text="${title}">نافي للتعليم</title>
     <style>
         * {
             margin: 0;
@@ -12,10 +12,12 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Tajawal', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f5f6fa;
             color: #2c3e50;
-            line-height: 1.6;
+            line-height: 1.8;
+            direction: rtl;
+            text-align: right;
         }
 
         .container {
@@ -371,15 +373,15 @@
 <div th:fragment="header">
     <div class="header">
         <div class="container">
-            <h1>🎓 Navi - Gestion Éducative</h1>
+            <h1>🎓 نافي - إدارة التعليم</h1>
         </div>
     </div>
     <nav class="nav">
         <ul class="nav-links">
-            <li><a href="/dashboard" th:classappend="${activePage == 'dashboard'} ? 'active'">Tableau de Bord</a></li>
-            <li><a href="/branches" th:classappend="${activePage == 'branches'} ? 'active'">Branches</a></li>
-            <li><a href="/classes" th:classappend="${activePage == 'classes'} ? 'active'">Classes</a></li>
-            <li><a href="/donors" th:classappend="${activePage == 'donors'} ? 'active'">Donateurs</a></li>
+            <li><a href="/dashboard" th:classappend="${activePage == 'dashboard'} ? 'active'">لوحة التحكم</a></li>
+            <li><a href="/branches" th:classappend="${activePage == 'branches'} ? 'active'">الفروع</a></li>
+            <li><a href="/classes" th:classappend="${activePage == 'classes'} ? 'active'">الفصول</a></li>
+            <li><a href="/donors" th:classappend="${activePage == 'donors'} ? 'active'">المتبرعين</a></li>
         </ul>
     </nav>
 </div>
