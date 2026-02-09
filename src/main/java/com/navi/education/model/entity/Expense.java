@@ -40,15 +40,15 @@ public class Expense {
     @Column(nullable = false)
     private Integer financialYear;
 
-    @Column(nullable = false)
-    private Integer month; // 1-12
+    @Column(name = "expense_month", nullable = false)
+    private Integer expenseMonth; // 1-12
 
     @PrePersist
     @PreUpdate
     public void calculateFinancialYearAndMonth() {
         if (educationClass != null && expenseDate != null) {
             this.financialYear = educationClass.getFinancialYear(expenseDate);
-            this.month = expenseDate.getMonthValue();
+            this.expenseMonth = expenseDate.getMonthValue();
         }
     }
 }

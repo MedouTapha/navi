@@ -143,7 +143,7 @@ public class ExpenseService {
                 .expenseDate(expense.getExpenseDate())
                 .description(expense.getDescription())
                 .financialYear(expense.getFinancialYear())
-                .month(expense.getMonth())
+                .expenseMonth(expense.getExpenseMonth())
                 .build();
     }
 }

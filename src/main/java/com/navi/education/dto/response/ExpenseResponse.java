@@ -22,5 +22,5 @@ public class ExpenseResponse {
     private LocalDate expenseDate;
     private String description;
     private Integer financialYear;
-    private Integer month;
+    private Integer expenseMonth;
 }
