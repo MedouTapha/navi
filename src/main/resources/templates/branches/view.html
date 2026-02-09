@@ -16,41 +16,44 @@
 
         <h3 style="margin-top: 30px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">📊 Résumé Financier</h3>
 
-        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+        <div class="financial-grid">
             <!-- Bloc Paiements (Recettes) -->
-            <div class="card" style="background-color: #d4edda; border: 2px solid #28a745;">
-                <h4 style="color: #155724; margin-bottom: 15px;">💰 Paiements Reçus (Donations)</h4>
-                <div style="font-size: 14px; line-height: 1.8;">
-                    <p><strong>Total Engagements:</strong> <span th:text="${#numbers.formatDecimal(branch.totalCommitments, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
-                    <p><strong>Total Payé:</strong> <span style="color: #28a745; font-size: 18px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalPaymentsReceived, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
-                    <p><strong>Reste à recevoir:</strong> <span style="color: #dc3545;" th:text="${#numbers.formatDecimal(branch.remainingToReceive, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
-                </div>
+            <div class="financial-block" style="background-color: #d4edda; border: 2px solid #28a745;">
+                <h4 style="color: #155724;">💰 Paiements Reçus</h4>
+                <p><strong>Total Engagements:</strong><br>
+                   <span th:text="${#numbers.formatDecimal(branch.totalCommitments, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
+                <p><strong>Total Payé:</strong><br>
+                   <span style="color: #28a745; font-size: 20px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalPaymentsReceived, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
+                <p><strong>Reste à recevoir:</strong><br>
+                   <span style="color: #dc3545; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.remainingToReceive, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
             </div>
 
             <!-- Bloc Dépenses -->
-            <div class="card" style="background-color: #fff3cd; border: 2px solid #ffc107;">
-                <h4 style="color: #856404; margin-bottom: 15px;">📉 Dépenses</h4>
-                <div style="font-size: 14px; line-height: 1.8;">
-                    <p><strong>Dépenses Annuelles (FIXED):</strong> <span th:text="${#numbers.formatDecimal(branch.totalFixedExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
-                    <p><strong>Dépenses Extra:</strong> <span th:text="${#numbers.formatDecimal(branch.totalExtraExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
-                    <p><strong>Total Dépenses:</strong> <span style="color: #dc3545; font-size: 18px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
-                </div>
+            <div class="financial-block" style="background-color: #fff3cd; border: 2px solid #ffc107;">
+                <h4 style="color: #856404;">📉 Dépenses</h4>
+                <p><strong>Dépenses Annuelles:</strong><br>
+                   <span th:text="${#numbers.formatDecimal(branch.totalFixedExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
+                <p><strong>Dépenses Extra:</strong><br>
+                   <span th:text="${#numbers.formatDecimal(branch.totalExtraExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
+                <p><strong>Total Dépenses:</strong><br>
+                   <span style="color: #dc3545; font-size: 20px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span></p>
             </div>
         </div>
 
         <!-- Solde Final -->
-        <div class="card" th:style="${branch.balance >= 0 ? 'background-color: #d1ecf1; border: 3px solid #17a2b8;' : 'background-color: #f8d7da; border: 3px solid #dc3545;'}" style="margin: 20px 0; padding: 20px; text-align: center;">
-            <h3 th:style="${branch.balance >= 0 ? 'color: #0c5460;' : 'color: #721c24;'}" style="margin: 0;">
-                💵 Solde = Paiements - Dépenses =
-                <span style="font-size: 28px;" th:text="${#numbers.formatDecimal(branch.balance, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</span>
+        <div class="balance-block" th:style="${branch.balance >= 0 ? 'background-color: #d1ecf1; border: 3px solid #17a2b8;' : 'background-color: #f8d7da; border: 3px solid #dc3545;'}">
+            <h3 th:style="${branch.balance >= 0 ? 'color: #0c5460;' : 'color: #721c24;'}">
+                💵 Solde (Paiements - Dépenses)
             </h3>
+            <div class="balance-amount" th:text="${#numbers.formatDecimal(branch.balance, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</div>
             <p style="margin-top: 10px; font-size: 14px; color: #6c757d;">
                 <span th:if="${branch.balance >= 0}">✅ Situation positive</span>
-                <span th:unless="${branch.balance >= 0}">⚠️ Déficit - Plus de dépenses que de paiements reçus</span>
+                <span th:unless="${branch.balance >= 0}">⚠️ Déficit</span>
             </p>
         </div>
 
-        <h3>Classes de la branche</h3>
+        <h3 style="margin-top: 30px;">Classes de la branche</h3>
+        <div class="table-wrapper">
         <table class="table">
             <thead>
             <tr>
@@ -79,6 +82,7 @@
             </tr>
             </tbody>
         </table>
+        </div>
 
         <div style="margin-top: 20px;">
             <a href="/branches" class="btn btn-secondary">Retour</a>
