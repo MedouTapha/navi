@@ -264,22 +264,22 @@ public class DataInitializerService implements CommandLineRunner {
         LocalDate expenseDate = LocalDate.of(2024, 10, 5);
 
         // Dépenses pour les premières classes
-        createExpense(classes.get(0), ExpenseType.TEACHER_SALARY, new BigDecimal("50000"),
+        createExpense(classes.get(0), ExpenseType.FIXED, new BigDecimal("50000"),
                 expenseDate, "Salaire enseignant octobre");
 
-        createExpense(classes.get(1), ExpenseType.TEACHER_SALARY, new BigDecimal("45000"),
+        createExpense(classes.get(1), ExpenseType.FIXED, new BigDecimal("45000"),
                 expenseDate, "Salaire enseignant octobre");
 
-        createExpense(classes.get(0), ExpenseType.UTILITIES, new BigDecimal("5000"),
+        createExpense(classes.get(0), ExpenseType.EXTRA, new BigDecimal("5000"),
                 expenseDate, "Électricité et eau octobre");
 
-        createExpense(classes.get(2), ExpenseType.TEACHER_SALARY, new BigDecimal("55000"),
+        createExpense(classes.get(2), ExpenseType.FIXED, new BigDecimal("55000"),
                 expenseDate, "Salaire enseignant octobre");
 
-        createExpense(classes.get(3), ExpenseType.TEACHER_SALARY, new BigDecimal("40000"),
+        createExpense(classes.get(3), ExpenseType.FIXED, new BigDecimal("40000"),
                 expenseDate, "Salaire enseignant octobre");
 
-        createExpense(classes.get(4), ExpenseType.MAINTENANCE, new BigDecimal("8000"),
+        createExpense(classes.get(4), ExpenseType.EXTRA, new BigDecimal("8000"),
                 expenseDate, "Réparation des tables");
     }
 
