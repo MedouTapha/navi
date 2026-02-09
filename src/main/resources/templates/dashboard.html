@@ -1,41 +1,91 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Tableau de Bord')}"></head>
+<head th:replace="~{fragments/layout :: head('لوحة التحكم')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <div class="container">
-    <div class="card">
-        <h2 class="card-header">📊 Tableau de Bord</h2>
+    <!-- الرصيد العام للمؤسسة -->
+    <div class="balance-block" th:style="${dashboard.globalBalance >= 0 ? 'background-color: #d1ecf1; border: 3px solid #17a2b8;' : 'background-color: #f8d7da; border: 3px solid #dc3545;'}">
+        <h3 th:style="${dashboard.globalBalance >= 0 ? 'color: #0c5460;' : 'color: #721c24;'}">
+            💵 الرصيد العام للمؤسسة
+        </h3>
+        <div class="balance-amount" th:text="${#numbers.formatDecimal(dashboard.globalBalance, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</div>
+        <p style="margin-top: 10px; font-size: 14px; color: #6c757d;">
+            <span th:if="${dashboard.globalBalance >= 0}">✅ وضع مالي إيجابي</span>
+            <span th:unless="${dashboard.globalBalance >= 0}">⚠️ عجز مالي</span>
+        </p>
+    </div>
 
+    <!-- إحصائيات عامة -->
+    <div class="card">
+        <h2 class="card-header">📊 إحصائيات عامة</h2>
         <div class="grid">
             <div class="stats-card">
-                <h3>Branches Actives</h3>
-                <div class="value" th:text="${#lists.size(branches)}">0</div>
+                <h3>عدد الفروع</h3>
+                <div class="value" th:text="${dashboard.totalBranches}">0</div>
             </div>
-
             <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                <h3>Total Classes</h3>
-                <div class="value" th:text="${totalClasses}">0</div>
+                <h3>عدد الفصول</h3>
+                <div class="value" th:text="${dashboard.totalClasses}">0</div>
             </div>
-
             <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                <h3>Total Donateurs</h3>
-                <div class="value" th:text="${totalDonors}">0</div>
+                <h3>عدد المتبرعين</h3>
+                <div class="value" th:text="${dashboard.totalDonors}">0</div>
             </div>
         </div>
     </div>
 
+    <!-- ملخص مالي شامل -->
     <div class="card">
-        <h3 class="card-header">🏢 Branches</h3>
-        <div class="grid">
-            <div th:each="branch : ${branches}" class="card">
-                <h4 th:text="${branch.nameFr}">Branche</h4>
-                <p><strong>عربي:</strong> <span th:text="${branch.nameAr}">Arabic name</span></p>
-                <p><strong>Classes:</strong> <span th:text="${branch.totalClasses}">0</span></p>
-                <p><strong>Dépenses mensuelles:</strong> <span th:text="${#numbers.formatDecimal(branch.monthlyExpenses, 0, 'COMMA', 2, 'POINT')}">0</span> MRU</p>
-                <a th:href="@{/branches/{id}(id=${branch.id})}" class="btn btn-primary btn-sm">Voir détails</a>
+        <h2 class="card-header">💰 الملخص المالي الشامل</h2>
+        <div class="financial-grid">
+            <div class="financial-block" style="background-color: #fff3cd; border: 2px solid #ffc107;">
+                <h4 style="color: #856404;">📉 إجمالي المصروفات</h4>
+                <p><strong>المصروفات الثابتة السنوية:</strong><br>
+                   <span th:text="${#numbers.formatDecimal(dashboard.totalFixedExpenses, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</span></p>
+                <p><strong>المصروفات الإضافية السنوية:</strong><br>
+                   <span th:text="${#numbers.formatDecimal(dashboard.totalExtraExpenses, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</span></p>
             </div>
+            <div class="financial-block" style="background-color: #d4edda; border: 2px solid #28a745;">
+                <h4 style="color: #155724;">💰 إجمالي التبرعات</h4>
+                <p><strong>التبرعات المدفوعة:</strong><br>
+                   <span style="color: #28a745; font-weight: bold;" th:text="${#numbers.formatDecimal(dashboard.totalDonationsPaid, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</span></p>
+                <p><strong>التبرعات المتأخرة:</strong><br>
+                   <span style="color: #dc3545; font-weight: bold;" th:text="${#numbers.formatDecimal(dashboard.totalDonationsLate, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- تفاصيل كل فرع -->
+    <div class="card">
+        <h2 class="card-header">🏢 تفاصيل الفروع</h2>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>الفرع</th>
+                    <th>المصروفات الثابتة</th>
+                    <th>المصروفات الإضافية</th>
+                    <th>التبرعات المدفوعة</th>
+                    <th>التبرعات المتأخرة</th>
+                    <th>الرصيد</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="branch : ${dashboard.branches}">
+                    <td>
+                        <strong th:text="${branch.nameAr}">الفرع</strong>
+                    </td>
+                    <td th:text="${#numbers.formatDecimal(branch.annualFixedExpenses, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</td>
+                    <td th:text="${#numbers.formatDecimal(branch.annualExtraExpenses, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</td>
+                    <td style="color: #28a745; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.annualDonationsPaid, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</td>
+                    <td style="color: #dc3545; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.annualDonationsLate, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</td>
+                    <td th:style="${branch.branchBalance >= 0 ? 'color: #17a2b8; font-weight: bold;' : 'color: #dc3545; font-weight: bold;'}"
+                        th:text="${#numbers.formatDecimal(branch.branchBalance, 0, 'COMMA', 2, 'POINT')} + ' أوقية'">0.00 أوقية</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

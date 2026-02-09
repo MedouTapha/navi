@@ -17,6 +17,7 @@ public class WebViewController {
     private final ExpenseService expenseService;
     private final AnnualCommitmentService commitmentService;
     private final PaymentService paymentService;
+    private final DashboardService dashboardService;
 
     @GetMapping("/")
     public String index() {
@@ -100,9 +101,7 @@ public class WebViewController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        model.addAttribute("branches", branchService.getAllBranches());
-        model.addAttribute("totalClasses", classService.getAllClasses().size());
-        model.addAttribute("totalDonors", donorService.getAllDonors().size());
+        model.addAttribute("dashboard", dashboardService.getDashboardSummary());
         model.addAttribute("activePage", "dashboard");
         return "dashboard";
     }
