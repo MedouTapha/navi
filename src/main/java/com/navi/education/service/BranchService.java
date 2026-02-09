@@ -97,7 +97,7 @@ public class BranchService {
         BigDecimal balance = paymentsOrZero.subtract(totalExpenses);
 
         // Statistiques
-        Integer totalClasses = branchRepository.countActiveClassesByBranchId(id);
+        long totalClassesCount = branchRepository.countActiveClassesByBranchId(id);
         Integer totalDonors = commitmentRepository.countUniqueDonorsByBranch(id);
 
         return BranchFinancialSummary.builder()
@@ -112,7 +112,7 @@ public class BranchService {
                 .totalExtraExpenses(totalExtraExpenses != null ? totalExtraExpenses : BigDecimal.ZERO)
                 .totalExpenses(totalExpenses)
                 .balance(balance)
-                .totalClasses(totalClasses)
+                .totalClasses((int) totalClassesCount)
                 .totalDonors(totalDonors != null ? totalDonors : 0)
                 .build();
     }
@@ -131,7 +131,7 @@ public class BranchService {
                 .nameFr(branch.getNameFr())
                 .nameAr(branch.getNameAr())
                 .description(branch.getDescription())
-                .totalClasses(branchRepository.countActiveClassesByBranchId(branch.getId()))
+                .totalClasses((int) branchRepository.countActiveClassesByBranchId(branch.getId()))
                 .monthlyExpenses(monthlyExpenses != null ? monthlyExpenses : BigDecimal.ZERO)
                 .build();
     }
