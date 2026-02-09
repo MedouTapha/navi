@@ -84,7 +84,7 @@ public class DataInitializerService implements CommandLineRunner {
 
     private List<EducationClass> createClasses(Branch nouakchott, Branch nouadhibou, Branch rosso, Branch ksar) {
         List<EducationClass> classes = new ArrayList<>();
-        LocalDate startDate = LocalDate.of(2024, 9, 1); // Début année scolaire 2024
+        LocalDate startDate = LocalDate.of(2025, 9, 1); // Début année scolaire 2025
 
         // Classes Nouakchott
         classes.add(createClass("Classe Récitation Niveau 1", "فصل التحفيظ المستوى 1",
@@ -161,7 +161,7 @@ public class DataInitializerService implements CommandLineRunner {
 
     private List<AnnualCommitment> createCommitments(List<Donor> donors, List<EducationClass> classes) {
         List<AnnualCommitment> commitments = new ArrayList<>();
-        LocalDate commitmentDate = LocalDate.of(2024, 9, 15);
+        LocalDate commitmentDate = LocalDate.of(2025, 9, 15);
 
         // Donateur 1 -> Classe 1
         commitments.add(createCommitment(donors.get(0), classes.get(0),
@@ -208,19 +208,19 @@ public class DataInitializerService implements CommandLineRunner {
     }
 
     private void createPayments(List<AnnualCommitment> commitments) {
-        LocalDate paymentDate = LocalDate.of(2024, 10, 1);
+        LocalDate paymentDate = LocalDate.of(2025, 10, 1);
 
         // Paiements pour engagement 1 (complet en une fois)
         createPayment(commitments.get(0), new BigDecimal("600000"), paymentDate,
-                PaymentMethod.BANKILY, "Paiement annuel complet", "BKY-2024-001");
+                PaymentMethod.BANKILY, "Paiement annuel complet", "BKY-2025-001");
 
         // Paiements pour engagement 2 (3 paiements mensuels)
         createPayment(commitments.get(1), new BigDecimal("180000"), paymentDate,
-                PaymentMethod.SEDAD, "Paiement 1/3", "SDD-2024-001");
+                PaymentMethod.SEDAD, "Paiement 1/3", "SDD-2025-001");
         createPayment(commitments.get(1), new BigDecimal("180000"), paymentDate.plusMonths(1),
-                PaymentMethod.SEDAD, "Paiement 2/3", "SDD-2024-002");
+                PaymentMethod.SEDAD, "Paiement 2/3", "SDD-2025-002");
         createPayment(commitments.get(1), new BigDecimal("180000"), paymentDate.plusMonths(2),
-                PaymentMethod.SEDAD, "Paiement 3/3", "SDD-2024-003");
+                PaymentMethod.SEDAD, "Paiement 3/3", "SDD-2025-003");
 
         // Paiements pour engagement 3 (partiel)
         createPayment(commitments.get(2), new BigDecimal("150000"), paymentDate,
@@ -230,21 +230,21 @@ public class DataInitializerService implements CommandLineRunner {
 
         // Paiements pour engagement 4
         createPayment(commitments.get(3), new BigDecimal("240000"), paymentDate,
-                PaymentMethod.BANKILY, "Paiement 50%", "BKY-2024-002");
+                PaymentMethod.BANKILY, "Paiement 50%", "BKY-2025-002");
         createPayment(commitments.get(3), new BigDecimal("240000"), paymentDate.plusMonths(2),
-                PaymentMethod.BANKILY, "Solde 50%", "BKY-2024-003");
+                PaymentMethod.BANKILY, "Solde 50%", "BKY-2025-003");
 
         // Paiements pour engagement 5
         createPayment(commitments.get(4), new BigDecimal("228000"), paymentDate,
-                PaymentMethod.MASRVI, "Acompte 50%", "MSR-2024-001");
+                PaymentMethod.MASRVI, "Acompte 50%", "MSR-2025-001");
 
         // Paiements pour engagement 6
         createPayment(commitments.get(5), new BigDecimal("420000"), paymentDate,
-                PaymentMethod.BANKILY, "Paiement intégral", "BKY-2024-004");
+                PaymentMethod.BANKILY, "Paiement intégral", "BKY-2025-004");
 
         // Paiements pour engagement 7
         createPayment(commitments.get(6), new BigDecimal("192000"), paymentDate,
-                PaymentMethod.SEDAD, "Acompte 50%", "SDD-2024-004");
+                PaymentMethod.SEDAD, "Acompte 50%", "SDD-2025-004");
     }
 
     private void createPayment(AnnualCommitment commitment, BigDecimal amount,
@@ -261,23 +261,26 @@ public class DataInitializerService implements CommandLineRunner {
     }
 
     private void createExpenses(List<EducationClass> classes) {
-        LocalDate expenseDate = LocalDate.of(2024, 10, 5);
+        // Utiliser le mois en cours pour que les dépenses soient visibles
+        LocalDate expenseDate = LocalDate.now().withDayOfMonth(5);
 
         // Dépenses pour les premières classes
+        String currentMonth = expenseDate.getMonth().toString().toLowerCase();
+
         createExpense(classes.get(0), ExpenseType.FIXED, new BigDecimal("50000"),
-                expenseDate, "Salaire enseignant octobre");
+                expenseDate, "Salaire enseignant " + currentMonth);
 
         createExpense(classes.get(1), ExpenseType.FIXED, new BigDecimal("45000"),
-                expenseDate, "Salaire enseignant octobre");
+                expenseDate, "Salaire enseignant " + currentMonth);
 
         createExpense(classes.get(0), ExpenseType.EXTRA, new BigDecimal("5000"),
-                expenseDate, "Électricité et eau octobre");
+                expenseDate, "Électricité et eau " + currentMonth);
 
         createExpense(classes.get(2), ExpenseType.FIXED, new BigDecimal("55000"),
-                expenseDate, "Salaire enseignant octobre");
+                expenseDate, "Salaire enseignant " + currentMonth);
 
         createExpense(classes.get(3), ExpenseType.FIXED, new BigDecimal("40000"),
-                expenseDate, "Salaire enseignant octobre");
+                expenseDate, "Salaire enseignant " + currentMonth);
 
         createExpense(classes.get(4), ExpenseType.EXTRA, new BigDecimal("8000"),
                 expenseDate, "Réparation des tables");
