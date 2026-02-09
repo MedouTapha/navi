@@ -263,27 +263,19 @@ public class DataInitializerService implements CommandLineRunner {
     private void createExpenses(List<EducationClass> classes) {
         // Utiliser le mois en cours pour que les dépenses soient visibles
         LocalDate expenseDate = LocalDate.now().withDayOfMonth(5);
-
-        // Dépenses pour les premières classes
         String currentMonth = expenseDate.getMonth().toString().toLowerCase();
 
-        createExpense(classes.get(0), ExpenseType.FIXED, new BigDecimal("50000"),
-                expenseDate, "Salaire enseignant " + currentMonth);
-
-        createExpense(classes.get(1), ExpenseType.FIXED, new BigDecimal("45000"),
-                expenseDate, "Salaire enseignant " + currentMonth);
+        // Créer seulement quelques dépenses EXTRA comme exemples
+        // Le gérant ajoute les dépenses manuellement selon les besoins
 
         createExpense(classes.get(0), ExpenseType.EXTRA, new BigDecimal("5000"),
                 expenseDate, "Électricité et eau " + currentMonth);
 
-        createExpense(classes.get(2), ExpenseType.FIXED, new BigDecimal("55000"),
-                expenseDate, "Salaire enseignant " + currentMonth);
-
-        createExpense(classes.get(3), ExpenseType.FIXED, new BigDecimal("40000"),
-                expenseDate, "Salaire enseignant " + currentMonth);
-
         createExpense(classes.get(4), ExpenseType.EXTRA, new BigDecimal("8000"),
                 expenseDate, "Réparation des tables");
+
+        createExpense(classes.get(1), ExpenseType.EXTRA, new BigDecimal("12000"),
+                expenseDate, "Achat de fournitures scolaires");
     }
 
     private void createExpense(EducationClass educationClass, ExpenseType expenseType,
