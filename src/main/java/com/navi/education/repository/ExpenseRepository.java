@@ -43,6 +43,11 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
                                                   @Param("startDate") LocalDate startDate,
                                                   @Param("endDate") LocalDate endDate);
 
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.educationClass.branch.id = :branchId " +
+           "AND e.expenseType = :expenseType")
+    BigDecimal getTotalExpensesByBranchAndType(@Param("branchId") Long branchId,
+                                                @Param("expenseType") ExpenseType expenseType);
+
     boolean existsByEducationClassIdAndExpenseTypeAndExpenseDateBetween(
             Long classId, ExpenseType expenseType, LocalDate startDate, LocalDate endDate);
 }

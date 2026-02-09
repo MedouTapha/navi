@@ -1,11 +1,15 @@
 package com.navi.education.service;
 
+import com.navi.education.dto.response.BranchFinancialSummary;
 import com.navi.education.dto.response.BranchResponse;
 import com.navi.education.exception.ResourceNotFoundException;
 import com.navi.education.model.entity.Branch;
 import com.navi.education.model.enums.BranchType;
+import com.navi.education.model.enums.ExpenseType;
+import com.navi.education.repository.AnnualCommitmentRepository;
 import com.navi.education.repository.BranchRepository;
 import com.navi.education.repository.ExpenseRepository;
+import com.navi.education.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,8 @@ public class BranchService {
 
     private final BranchRepository branchRepository;
     private final ExpenseRepository expenseRepository;
+    private final AnnualCommitmentRepository commitmentRepository;
+    private final PaymentRepository paymentRepository;
 
     /**
      * Initialise les branches si elles n'existent pas
@@ -61,6 +67,54 @@ public class BranchService {
         Branch branch = branchRepository.findByType(type)
                 .orElseThrow(() -> new ResourceNotFoundException("Branche avec type: " + type));
         return toBranchResponse(branch);
+    }
+
+    @Transactional(readOnly = true)
+    public BranchFinancialSummary getBranchFinancialSummary(Long id) {
+        Branch branch = branchRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Branche", id));
+
+        // Calculer les engagements et paiements
+        BigDecimal totalCommitments = commitmentRepository.getTotalCommitmentsByBranch(id);
+        BigDecimal totalPaymentsReceived = paymentRepository.getTotalPaymentsByBranch(id);
+        BigDecimal remainingToReceive = (totalCommitments != null && totalPaymentsReceived != null)
+                ? totalCommitments.subtract(totalPaymentsReceived)
+                : (totalCommitments != null ? totalCommitments : BigDecimal.ZERO);
+
+        // Calculer les dépenses par type
+        BigDecimal totalFixedExpenses = expenseRepository.getTotalExpensesByBranchAndType(id, ExpenseType.FIXED);
+        BigDecimal totalExtraExpenses = expenseRepository.getTotalExpensesByBranchAndType(id, ExpenseType.EXTRA);
+        BigDecimal totalExpenses = BigDecimal.ZERO;
+        if (totalFixedExpenses != null) {
+            totalExpenses = totalExpenses.add(totalFixedExpenses);
+        }
+        if (totalExtraExpenses != null) {
+            totalExpenses = totalExpenses.add(totalExtraExpenses);
+        }
+
+        // Calculer le bilan
+        BigDecimal paymentsOrZero = totalPaymentsReceived != null ? totalPaymentsReceived : BigDecimal.ZERO;
+        BigDecimal balance = paymentsOrZero.subtract(totalExpenses);
+
+        // Statistiques
+        Integer totalClasses = branchRepository.countActiveClassesByBranchId(id);
+        Integer totalDonors = commitmentRepository.countUniqueDonorsByBranch(id);
+
+        return BranchFinancialSummary.builder()
+                .id(branch.getId())
+                .type(branch.getType())
+                .nameFr(branch.getNameFr())
+                .nameAr(branch.getNameAr())
+                .totalCommitments(totalCommitments != null ? totalCommitments : BigDecimal.ZERO)
+                .totalPaymentsReceived(paymentsOrZero)
+                .remainingToReceive(remainingToReceive)
+                .totalFixedExpenses(totalFixedExpenses != null ? totalFixedExpenses : BigDecimal.ZERO)
+                .totalExtraExpenses(totalExtraExpenses != null ? totalExtraExpenses : BigDecimal.ZERO)
+                .totalExpenses(totalExpenses)
+                .balance(balance)
+                .totalClasses(totalClasses)
+                .totalDonors(totalDonors != null ? totalDonors : 0)
+                .build();
     }
 
     private BranchResponse toBranchResponse(Branch branch) {

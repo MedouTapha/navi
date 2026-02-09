@@ -32,7 +32,7 @@ public class WebViewController {
 
     @GetMapping("/branches/{id}")
     public String viewBranch(@PathVariable Long id, Model model) {
-        model.addAttribute("branch", branchService.getBranchById(id));
+        model.addAttribute("branch", branchService.getBranchFinancialSummary(id));
         model.addAttribute("classes", classService.getClassesByBranch(id));
         model.addAttribute("activePage", "branches");
         return "branches/view";

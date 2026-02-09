@@ -40,4 +40,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
            "AND p.commitment.financialYear = :financialYear")
     BigDecimal getTotalPaymentsByClassAndYear(@Param("classId") Long classId,
                                                @Param("financialYear") Integer financialYear);
+
+    @Query("SELECT SUM(p.amount) FROM Payment p " +
+           "WHERE p.commitment.educationClass.branch.id = :branchId")
+    BigDecimal getTotalPaymentsByBranch(@Param("branchId") Long branchId);
 }
