@@ -12,7 +12,7 @@
             <div th:each="branch : ${branches}" class="card">
                 <h3 th:text="${branch.nameAr}">الفرع</h3>
                 <p><strong>عدد الفصول:</strong> <span th:text="${branch.totalClasses}">0</span></p>
-                <p><strong>مصاريف الشهر:</strong> <span th:text="${#numbers.formatDecimal(branch.monthlyExpenses, 0, 'COMMA', 1, 'POINT')}">0.0</span> MRU</p>
+                <p><strong>مصاريف الشهر:</strong> MRU <span th:text="${#numbers.formatDecimal(branch.monthlyExpenses, 0, 'COMMA', 1, 'POINT')}">0.0</span></p>
                 <div style="margin-top: 15px;">
                     <a th:href="@{/branches/{id}(id=${branch.id})}" class="btn btn-primary" style="width: 100%;">عرض التفاصيل</a>
                 </div>
