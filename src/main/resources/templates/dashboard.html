@@ -10,7 +10,7 @@
         <h3 th:style="${dashboard.globalBalance >= 0 ? 'color: #0c5460;' : 'color: #721c24;'}">
             💵 الرصيد العام للمؤسسة
         </h3>
-        <div class="balance-amount" th:text="'MRU ' + ${#numbers.formatDecimal(dashboard.globalBalance, 0, 'COMMA', 1, 'POINT')}">MRU 0.0</div>
+        <div class="balance-amount" th:text="${#numbers.formatDecimal(dashboard.globalBalance, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</div>
         <p style="margin-top: 10px; font-size: 14px; color: #6c757d;">
             <span th:if="${dashboard.globalBalance >= 0}">✅ وضع مالي إيجابي</span>
             <span th:unless="${dashboard.globalBalance >= 0}">⚠️ عجز مالي</span>
@@ -43,16 +43,16 @@
             <div class="financial-block" style="background-color: #fff3cd; border: 2px solid #ffc107;">
                 <h4 style="color: #856404;">📉 إجمالي المصروفات</h4>
                 <p><strong>المصروفات الثابتة السنوية:</strong><br>
-                   <span th:text="'MRU ' + ${#numbers.formatDecimal(dashboard.totalFixedExpenses, 0, 'COMMA', 1, 'POINT')}">MRU 0.0</span></p>
+                   <span th:text="${#numbers.formatDecimal(dashboard.totalFixedExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
                 <p><strong>المصروفات الإضافية السنوية:</strong><br>
-                   <span th:text="'MRU ' + ${#numbers.formatDecimal(dashboard.totalExtraExpenses, 0, 'COMMA', 1, 'POINT')}">MRU 0.0</span></p>
+                   <span th:text="${#numbers.formatDecimal(dashboard.totalExtraExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
             </div>
             <div class="financial-block" style="background-color: #d4edda; border: 2px solid #28a745;">
                 <h4 style="color: #155724;">💰 إجمالي التبرعات</h4>
                 <p><strong>التبرعات المدفوعة:</strong><br>
-                   <span style="color: #28a745; font-weight: bold;" th:text="'MRU ' + ${#numbers.formatDecimal(dashboard.totalDonationsPaid, 0, 'COMMA', 1, 'POINT')}">MRU 0.0</span></p>
+                   <span style="color: #28a745; font-weight: bold;" th:text="${#numbers.formatDecimal(dashboard.totalDonationsPaid, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
                 <p><strong>التبرعات المتأخرة:</strong><br>
-                   <span style="color: #dc3545; font-weight: bold;" th:text="'MRU ' + ${#numbers.formatDecimal(dashboard.totalDonationsLate, 0, 'COMMA', 1, 'POINT')}">MRU 0.0</span></p>
+                   <span style="color: #dc3545; font-weight: bold;" th:text="${#numbers.formatDecimal(dashboard.totalDonationsLate, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
             </div>
         </div>
     </div>
@@ -77,12 +77,12 @@
                     <td>
                         <strong th:text="${branch.nameAr}">الفرع</strong>
                     </td>
-                    <td th:text="'MRU ' + ${#numbers.formatDecimal(branch.annualFixedExpenses, 0, 'COMMA', 1, 'POINT')}">MRU 0.0</td>
-                    <td th:text="'MRU ' + ${#numbers.formatDecimal(branch.annualExtraExpenses, 0, 'COMMA', 1, 'POINT')}">MRU 0.0</td>
-                    <td style="color: #28a745; font-weight: bold;" th:text="'MRU ' + ${#numbers.formatDecimal(branch.annualDonationsPaid, 0, 'COMMA', 1, 'POINT')}">MRU 0.0</td>
-                    <td style="color: #dc3545; font-weight: bold;" th:text="'MRU ' + ${#numbers.formatDecimal(branch.annualDonationsLate, 0, 'COMMA', 1, 'POINT')}">MRU 0.0</td>
+                    <td th:text="${#numbers.formatDecimal(branch.annualFixedExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
+                    <td th:text="${#numbers.formatDecimal(branch.annualExtraExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
+                    <td style="color: #28a745; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.annualDonationsPaid, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
+                    <td style="color: #dc3545; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.annualDonationsLate, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
                     <td th:style="${branch.branchBalance >= 0 ? 'color: #17a2b8; font-weight: bold;' : 'color: #dc3545; font-weight: bold;'}"
-                        th:text="'MRU ' + ${#numbers.formatDecimal(branch.branchBalance, 0, 'COMMA', 1, 'POINT')}">MRU 0.0</td>
+                        th:text="${#numbers.formatDecimal(branch.branchBalance, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
                 </tr>
                 </tbody>
             </table>
