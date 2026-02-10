@@ -20,22 +20,22 @@
             <div class="financial-block" style="background-color: #d4edda; border: 2px solid #28a745;">
                 <h4 style="color: #155724;">💰 المدفوعات المستلمة</h4>
                 <p><strong>إجمالي التعهدات:</strong><br>
-                   <span th:text="${#numbers.formatDecimal(branch.totalCommitments, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
+                   <span dir="ltr" th:text="${#numbers.formatDecimal(branch.totalCommitments, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
                 <p><strong>إجمالي المدفوع:</strong><br>
-                   <span style="color: #28a745; font-size: 20px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalPaymentsReceived, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
+                   <span dir="ltr" style="color: #28a745; font-size: 20px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalPaymentsReceived, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
                 <p><strong>المتبقي للاستلام:</strong><br>
-                   <span style="color: #dc3545; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.remainingToReceive, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
+                   <span dir="ltr" style="color: #dc3545; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.remainingToReceive, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
             </div>
 
             <!-- المصروفات -->
             <div class="financial-block" style="background-color: #fff3cd; border: 2px solid #ffc107;">
                 <h4 style="color: #856404;">📉 المصروفات</h4>
                 <p><strong>المصروفات السنوية:</strong><br>
-                   <span th:text="${#numbers.formatDecimal(branch.totalFixedExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
+                   <span dir="ltr" th:text="${#numbers.formatDecimal(branch.totalFixedExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
                 <p><strong>المصروفات الإضافية:</strong><br>
-                   <span th:text="${#numbers.formatDecimal(branch.totalExtraExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
+                   <span dir="ltr" th:text="${#numbers.formatDecimal(branch.totalExtraExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
                 <p><strong>إجمالي المصروفات:</strong><br>
-                   <span style="color: #dc3545; font-size: 20px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
+                   <span dir="ltr" style="color: #dc3545; font-size: 20px; font-weight: bold;" th:text="${#numbers.formatDecimal(branch.totalExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</span></p>
             </div>
         </div>
 
@@ -44,7 +44,7 @@
             <h3 th:style="${branch.balance >= 0 ? 'color: #0c5460;' : 'color: #721c24;'}">
                 💵 الرصيد (المدفوعات - المصروفات)
             </h3>
-            <div class="balance-amount" th:text="${#numbers.formatDecimal(branch.balance, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</div>
+            <div class="balance-amount" dir="ltr" style="text-align: center;" th:text="${#numbers.formatDecimal(branch.balance, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</div>
             <p style="margin-top: 10px; font-size: 14px; color: #6c757d;">
                 <span th:if="${branch.balance >= 0}">✅ وضع إيجابي</span>
                 <span th:unless="${branch.balance >= 0}">⚠️ عجز مالي</span>
@@ -70,7 +70,7 @@
                     <small style="color: #7f8c8d;" th:text="${class.nameFr}">Nom FR</small>
                 </td>
                 <td><span class="badge badge-info" th:text="${class.classType.arabicName}">النوع</span></td>
-                <td th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
+                <td dir="ltr" th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
                 <td>
                     <span th:if="${class.active}" class="badge badge-success">نشط</span>
                     <span th:unless="${class.active}" class="badge badge-warning">غير نشط</span>
