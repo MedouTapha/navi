@@ -5,6 +5,24 @@
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <div class="container">
+    <!-- اختيار السنة المالية -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">📅 السنة المالية</h3>
+            <div>
+                <select id="yearSelector" class="form-control" style="min-width: 150px;"
+                        onchange="window.location.href='/dashboard?year=' + this.value">
+                    <option th:each="availableYear : ${dashboard.availableYears}"
+                            th:value="${availableYear}"
+                            th:text="${availableYear}"
+                            th:selected="${availableYear == dashboard.selectedYear}">
+                        2024
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <!-- الرصيد العام للمؤسسة -->
     <div class="balance-block" th:style="${dashboard.globalBalance >= 0 ? 'background-color: #d1ecf1; border: 3px solid #17a2b8;' : 'background-color: #f8d7da; border: 3px solid #dc3545;'}">
         <h3 th:style="${dashboard.globalBalance >= 0 ? 'color: #0c5460;' : 'color: #721c24;'}">

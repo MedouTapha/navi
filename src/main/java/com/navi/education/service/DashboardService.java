@@ -2,6 +2,7 @@ package com.navi.education.service;
 
 import com.navi.education.dto.response.DashboardBranchSummary;
 import com.navi.education.dto.response.DashboardSummary;
+import com.navi.education.model.entity.AnnualCommitment;
 import com.navi.education.model.entity.Branch;
 import com.navi.education.model.enums.ExpenseType;
 import com.navi.education.repository.*;
@@ -26,7 +27,7 @@ public class DashboardService {
     private final EducationClassRepository classRepository;
 
     @Transactional(readOnly = true)
-    public DashboardSummary getDashboardSummary() {
+    public DashboardSummary getDashboardSummary(Integer year) {
         List<Branch> allBranches = branchRepository.findAll();
         List<DashboardBranchSummary> branchSummaries = new ArrayList<>();
 
@@ -38,7 +39,7 @@ public class DashboardService {
 
         // Calculer pour chaque branche
         for (Branch branch : allBranches) {
-            DashboardBranchSummary branchSummary = calculateBranchSummary(branch);
+            DashboardBranchSummary branchSummary = calculateBranchSummary(branch, year);
             branchSummaries.add(branchSummary);
 
             // Accumuler les totaux
@@ -56,6 +57,9 @@ public class DashboardService {
         long totalClassesCount = classRepository.count();
         Integer totalDonors = getTotalUniqueDonors();
 
+        // Années disponibles (calculer à partir des données existantes)
+        List<Integer> availableYears = getAvailableYears();
+
         return DashboardSummary.builder()
                 .branches(branchSummaries)
                 .totalFixedExpenses(totalFixedExpenses)
@@ -66,21 +70,23 @@ public class DashboardService {
                 .totalBranches(allBranches.size())
                 .totalClasses((int) totalClassesCount)
                 .totalDonors(totalDonors != null ? totalDonors : 0)
+                .selectedYear(year)
+                .availableYears(availableYears)
                 .build();
     }
 
-    private DashboardBranchSummary calculateBranchSummary(Branch branch) {
+    private DashboardBranchSummary calculateBranchSummary(Branch branch, Integer year) {
         Long branchId = branch.getId();
 
-        // Dépenses annuelles par type
+        // Dépenses annuelles par type (filtrées par année)
         BigDecimal annualFixedExpenses = expenseRepository
-                .getTotalExpensesByBranchAndType(branchId, ExpenseType.FIXED);
+                .getTotalExpensesByBranchTypeAndYear(branchId, ExpenseType.FIXED, year);
         BigDecimal annualExtraExpenses = expenseRepository
-                .getTotalExpensesByBranchAndType(branchId, ExpenseType.EXTRA);
+                .getTotalExpensesByBranchTypeAndYear(branchId, ExpenseType.EXTRA, year);
 
-        // Donations annuelles
-        BigDecimal totalCommitments = commitmentRepository.getTotalCommitmentsByBranch(branchId);
-        BigDecimal totalPaid = paymentRepository.getTotalPaymentsByBranch(branchId);
+        // Donations annuelles (filtrées par année)
+        BigDecimal totalCommitments = commitmentRepository.getTotalCommitmentsByBranchAndYear(branchId, year);
+        BigDecimal totalPaid = paymentRepository.getTotalPaymentsByBranchAndYear(branchId, year);
 
         // Donations payées et en retard
         BigDecimal annualDonationsPaid = totalPaid != null ? totalPaid : BigDecimal.ZERO;
@@ -122,6 +128,22 @@ public class DashboardService {
         } catch (Exception e) {
             log.error("Erreur lors du comptage des donateurs: {}", e.getMessage());
             return 0;
+        }
+    }
+
+    private List<Integer> getAvailableYears() {
+        // Récupère toutes les années distinctes des commitments
+        try {
+            return commitmentRepository.findAll()
+                    .stream()
+                    .map(AnnualCommitment::getFinancialYear)
+                    .filter(year -> year != null && year > 0)
+                    .distinct()
+                    .sorted()
+                    .toList();
+        } catch (Exception e) {
+            log.error("Erreur lors de la récupération des années: {}", e.getMessage());
+            return List.of(java.time.LocalDate.now().getYear());
         }
     }
 }

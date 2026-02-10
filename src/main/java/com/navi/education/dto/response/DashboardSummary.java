@@ -26,4 +26,8 @@ public class DashboardSummary {
     private Integer totalBranches;
     private Integer totalClasses;
     private Integer totalDonors;
+
+    // Année sélectionnée
+    private Integer selectedYear;                // السنة المالية المحددة
+    private List<Integer> availableYears;        // السنوات المتاحة
 }

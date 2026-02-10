@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -100,8 +101,13 @@ public class WebViewController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        model.addAttribute("dashboard", dashboardService.getDashboardSummary());
+    public String dashboard(@RequestParam(required = false) Integer year, Model model) {
+        // Si aucune année n'est spécifiée, utiliser l'année courante
+        if (year == null) {
+            year = java.time.LocalDate.now().getYear();
+        }
+
+        model.addAttribute("dashboard", dashboardService.getDashboardSummary(year));
         model.addAttribute("activePage", "dashboard");
         return "dashboard";
     }

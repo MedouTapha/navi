@@ -43,6 +43,11 @@ public interface AnnualCommitmentRepository extends JpaRepository<AnnualCommitme
            "WHERE ac.educationClass.branch.id = :branchId")
     BigDecimal getTotalCommitmentsByBranch(@Param("branchId") Long branchId);
 
+    @Query("SELECT SUM(ac.annualAmount) FROM AnnualCommitment ac " +
+           "WHERE ac.educationClass.branch.id = :branchId AND ac.financialYear = :financialYear")
+    BigDecimal getTotalCommitmentsByBranchAndYear(@Param("branchId") Long branchId,
+                                                    @Param("financialYear") Integer financialYear);
+
     @Query("SELECT COUNT(DISTINCT ac.donor.id) FROM AnnualCommitment ac " +
            "WHERE ac.educationClass.branch.id = :branchId")
     Integer countUniqueDonorsByBranch(@Param("branchId") Long branchId);
