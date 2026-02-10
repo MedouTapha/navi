@@ -261,21 +261,34 @@ public class DataInitializerService implements CommandLineRunner {
     }
 
     private void createExpenses(List<EducationClass> classes) {
-        // Utiliser le mois en cours pour que les dépenses soient visibles
-        LocalDate expenseDate = LocalDate.now().withDayOfMonth(5);
-        String currentMonth = expenseDate.getMonth().toString().toLowerCase();
+        log.info("Création des dépenses fixes annuelles pour chaque classe...");
 
-        // Créer seulement quelques dépenses EXTRA comme exemples
-        // Le gérant ajoute les dépenses manuellement selon les besoins
+        // Créer une dépense FIXED pour chaque classe (dépense annuelle fixe)
+        for (EducationClass educationClass : classes) {
+            // Calculer le montant annuel : monthlyFixedAmount × 12
+            BigDecimal annualFixedAmount = educationClass.getMonthlyFixedAmount().multiply(new BigDecimal("12"));
+
+            // Créer la dépense fixe à la date de début de la classe
+            createExpense(educationClass, ExpenseType.FIXED, annualFixedAmount,
+                    educationClass.getStartDate(),
+                    "المصروفات الثابتة السنوية للفصل - Dépense fixe annuelle de la classe");
+
+            log.info("Dépense FIXED créée pour {} : {} أوقية",
+                    educationClass.getNameAr(), annualFixedAmount);
+        }
+
+        // Créer quelques dépenses EXTRA comme exemples
+        log.info("Création de quelques dépenses exceptionnelles...");
+        LocalDate extraExpenseDate = LocalDate.now().withDayOfMonth(5);
 
         createExpense(classes.get(0), ExpenseType.EXTRA, new BigDecimal("5000"),
-                expenseDate, "Électricité et eau " + currentMonth);
+                extraExpenseDate, "فواتير الكهرباء والماء - Électricité et eau");
 
         createExpense(classes.get(4), ExpenseType.EXTRA, new BigDecimal("8000"),
-                expenseDate, "Réparation des tables");
+                extraExpenseDate, "إصلاح الطاولات - Réparation des tables");
 
         createExpense(classes.get(1), ExpenseType.EXTRA, new BigDecimal("12000"),
-                expenseDate, "Achat de fournitures scolaires");
+                extraExpenseDate, "شراء اللوازم المدرسية - Achat de fournitures scolaires");
     }
 
     private void createExpense(EducationClass educationClass, ExpenseType expenseType,
