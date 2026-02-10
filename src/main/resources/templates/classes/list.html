@@ -19,7 +19,7 @@
                     <th>Branche</th>
                     <th>Type</th>
                     <th>Montant Mensuel</th>
-                    <th>Année Financière</th>
+                    <th>السنة المالية</th>
                     <th>Statut</th>
                     <th>Actions</th>
                 </tr>
@@ -32,8 +32,8 @@
                     </td>
                     <td th:text="${class.branchName}">Branche</td>
                     <td><span class="badge badge-info" th:text="${class.classType.frenchName}">Type</span></td>
-                    <td th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
-                    <td th:text="${class.currentFinancialYear}">1</td>
+                    <td dir="ltr" th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
+                    <td th:text="${class.currentFinancialYear}">2024</td>
                     <td>
                         <span th:if="${class.active}" class="badge badge-success">Active</span>
                         <span th:unless="${class.active}" class="badge badge-warning">Inactive</span>

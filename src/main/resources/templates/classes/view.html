@@ -25,11 +25,11 @@
             </div>
             <div>
                 <strong>Montant Mensuel:</strong>
-                <p th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</p>
+                <p dir="ltr" th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</p>
             </div>
             <div>
-                <strong>Année Financière:</strong>
-                <p th:text="${class.currentFinancialYear}">1</p>
+                <strong>السنة المالية:</strong>
+                <p th:text="${class.currentFinancialYear}">2024</p>
             </div>
             <div>
                 <strong>Date de début:</strong>
@@ -50,11 +50,11 @@
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
             <div class="stats-card">
                 <h3>Total Dépenses</h3>
-                <div class="value" th:text="${#numbers.formatDecimal(class.totalExpenses, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0 MRU</div>
+                <div class="value" dir="ltr" th:text="${#numbers.formatDecimal(class.totalExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</div>
             </div>
             <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
                 <h3>Total Donations</h3>
-                <div class="value" th:text="${#numbers.formatDecimal(class.totalDonations, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0 MRU</div>
+                <div class="value" dir="ltr" th:text="${#numbers.formatDecimal(class.totalDonations, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</div>
             </div>
         </div>
     </div>
@@ -77,7 +77,7 @@
                     <span th:if="${expense.expenseType.name() == 'FIXED'}" class="badge badge-info">Fixe</span>
                     <span th:if="${expense.expenseType.name() == 'EXTRA'}" class="badge badge-warning">Extra</span>
                 </td>
-                <td th:text="${#numbers.formatDecimal(expense.amount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td dir="ltr" th:text="${#numbers.formatDecimal(expense.amount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
                 <td th:text="${expense.description}">Description</td>
             </tr>
             </tbody>
@@ -90,7 +90,7 @@
             <thead>
             <tr>
                 <th>Donateur</th>
-                <th>Année Financière</th>
+                <th>السنة المالية</th>
                 <th>Montant Engagé</th>
                 <th>Montant Payé</th>
                 <th>Solde Restant</th>
@@ -100,10 +100,10 @@
             <tbody>
             <tr th:each="commitment : ${commitments}">
                 <td th:text="${commitment.donorName}">Donateur</td>
-                <td th:text="${commitment.financialYear}">1</td>
-                <td th:text="${#numbers.formatDecimal(commitment.annualAmount, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
-                <td th:text="${#numbers.formatDecimal(commitment.totalPaid, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
-                <td th:text="${#numbers.formatDecimal(commitment.remainingBalance, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                <td th:text="${commitment.financialYear}">2024</td>
+                <td dir="ltr" th:text="${#numbers.formatDecimal(commitment.annualAmount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
+                <td dir="ltr" th:text="${#numbers.formatDecimal(commitment.totalPaid, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
+                <td dir="ltr" th:text="${#numbers.formatDecimal(commitment.remainingBalance, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
                 <td>
                     <span th:if="${commitment.fullyPaid}" class="badge badge-success">Payé</span>
                     <span th:unless="${commitment.fullyPaid}" class="badge badge-warning">En cours</span>

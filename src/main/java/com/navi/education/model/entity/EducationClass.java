@@ -62,6 +62,7 @@ public class EducationClass {
 
     /**
      * Calcule l'année financière basée sur la date de début et une date donnée
+     * Retourne l'année calendaire réelle (ex: 2024, 2025, 2026)
      */
     public int getFinancialYear(LocalDate date) {
         if (date.isBefore(startDate)) {
@@ -69,14 +70,15 @@ public class EducationClass {
         }
 
         LocalDate currentYearStart = startDate;
-        int year = 1;
+        int yearCount = 1;
 
         while (currentYearStart.plusYears(1).isBefore(date) || currentYearStart.plusYears(1).isEqual(date)) {
             currentYearStart = currentYearStart.plusYears(1);
-            year++;
+            yearCount++;
         }
 
-        return year;
+        // Retourne l'année calendaire réelle au lieu d'un compteur
+        return startDate.getYear() + (yearCount - 1);
     }
 
     /**
