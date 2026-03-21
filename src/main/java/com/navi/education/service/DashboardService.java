@@ -1,9 +1,10 @@
 package com.navi.education.service;
 
+import com.navi.education.dto.response.ClassDashboardSummary;
 import com.navi.education.dto.response.DashboardBranchSummary;
 import com.navi.education.dto.response.DashboardSummary;
-import com.navi.education.model.entity.AnnualCommitment;
 import com.navi.education.model.entity.Branch;
+import com.navi.education.model.entity.EducationClass;
 import com.navi.education.model.enums.ExpenseType;
 import com.navi.education.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,129 +23,160 @@ import java.util.List;
 public class DashboardService {
 
     private final BranchRepository branchRepository;
+    private final EducationClassRepository classRepository;
     private final ExpenseRepository expenseRepository;
     private final PaymentRepository paymentRepository;
     private final AnnualCommitmentRepository commitmentRepository;
-    private final EducationClassRepository classRepository;
+    private final ExtraDonationRepository extraDonationRepository;
 
+    /**
+     * Calcule le bilan de l'institut à une date donnée.
+     * Chaque classe utilise sa propre année financière en cours à cette date.
+     */
     @Transactional(readOnly = true)
-    public DashboardSummary getDashboardSummary(Integer year) {
+    public DashboardSummary getDashboardSummary(LocalDate referenceDate) {
         List<Branch> allBranches = branchRepository.findAll();
         List<DashboardBranchSummary> branchSummaries = new ArrayList<>();
 
-        // Totaux globaux
-        BigDecimal totalFixedExpenses = BigDecimal.ZERO;
-        BigDecimal totalExtraExpenses = BigDecimal.ZERO;
-        BigDecimal totalDonationsPaid = BigDecimal.ZERO;
-        BigDecimal totalDonationsLate = BigDecimal.ZERO;
+        BigDecimal instFixed = ZERO, instExtra = ZERO;
+        BigDecimal instCommitted = ZERO, instPaid = ZERO, instExtraDon = ZERO;
 
-        // Calculer pour chaque branche
         for (Branch branch : allBranches) {
-            DashboardBranchSummary branchSummary = calculateBranchSummary(branch, year);
+            DashboardBranchSummary branchSummary = calculateBranchSummary(branch, referenceDate);
+            if (branchSummary.getClasses().isEmpty()) continue;
             branchSummaries.add(branchSummary);
 
-            // Accumuler les totaux
-            totalFixedExpenses = totalFixedExpenses.add(branchSummary.getAnnualFixedExpenses());
-            totalExtraExpenses = totalExtraExpenses.add(branchSummary.getAnnualExtraExpenses());
-            totalDonationsPaid = totalDonationsPaid.add(branchSummary.getAnnualDonationsPaid());
-            totalDonationsLate = totalDonationsLate.add(branchSummary.getAnnualDonationsLate());
+            instFixed    = instFixed.add(branchSummary.getAnnualFixedExpenses());
+            instExtra    = instExtra.add(branchSummary.getAnnualExtraExpenses());
+            instCommitted = instCommitted.add(branchSummary.getTotalCommittedDonations());
+            instPaid      = instPaid.add(branchSummary.getAnnualDonationsPaid());
+            instExtraDon  = instExtraDon.add(branchSummary.getTotalExtraDonations());
         }
 
-        // Solde global = Total Donations Payées - Total Dépenses
-        BigDecimal totalExpenses = totalFixedExpenses.add(totalExtraExpenses);
-        BigDecimal globalBalance = totalDonationsPaid.subtract(totalExpenses);
+        BigDecimal instTotalExpenses = instFixed.add(instExtra);
+        BigDecimal instTotalReceived = instPaid.add(instExtraDon);
+        BigDecimal instLate = instCommitted.subtract(instPaid);
+        BigDecimal globalBalance = instTotalReceived.subtract(instTotalExpenses);
 
-        // Statistiques globales
-        long totalClassesCount = classRepository.count();
-        Integer totalDonors = getTotalUniqueDonors();
-
-        // Années disponibles (calculer à partir des données existantes)
-        List<Integer> availableYears = getAvailableYears();
+        long totalClasses = classRepository.findByActiveTrue().size();
 
         return DashboardSummary.builder()
+                .referenceDate(referenceDate)
                 .branches(branchSummaries)
-                .totalFixedExpenses(totalFixedExpenses)
-                .totalExtraExpenses(totalExtraExpenses)
-                .totalDonationsPaid(totalDonationsPaid)
-                .totalDonationsLate(totalDonationsLate)
+                .totalFixedExpenses(instFixed)
+                .totalExtraExpenses(instExtra)
+                .totalExpenses(instTotalExpenses)
+                .totalCommittedDonations(instCommitted)
+                .totalDonationsPaid(instPaid)
+                .totalDonationsLate(instLate.max(ZERO))
+                .totalExtraDonations(instExtraDon)
+                .totalReceived(instTotalReceived)
                 .globalBalance(globalBalance)
-                .totalBranches(allBranches.size())
-                .totalClasses((int) totalClassesCount)
-                .totalDonors(totalDonors != null ? totalDonors : 0)
-                .selectedYear(year)
-                .availableYears(availableYears)
+                .totalBranches(branchSummaries.size())
+                .totalClasses((int) totalClasses)
+                .totalDonors(countUniqueDonors())
                 .build();
     }
 
-    private DashboardBranchSummary calculateBranchSummary(Branch branch, Integer year) {
-        Long branchId = branch.getId();
+    /**
+     * Calcule le bilan d'une seule branche à une date donnée (pour la vue détail).
+     */
+    @Transactional(readOnly = true)
+    public DashboardBranchSummary getBranchClassSummaries(Long branchId, LocalDate referenceDate) {
+        Branch branch = branchRepository.findById(branchId)
+                .orElseThrow(() -> new RuntimeException("Branche non trouvée: " + branchId));
+        return calculateBranchSummary(branch, referenceDate);
+    }
 
-        // Dépenses annuelles par type (filtrées par année)
-        BigDecimal annualFixedExpenses = expenseRepository
-                .getTotalExpensesByBranchTypeAndYear(branchId, ExpenseType.FIXED, year);
-        BigDecimal annualExtraExpenses = expenseRepository
-                .getTotalExpensesByBranchTypeAndYear(branchId, ExpenseType.EXTRA, year);
+    // ─────────────────────────────────────────────────────────────
+    // Calculs internes
+    // ─────────────────────────────────────────────────────────────
 
-        // Donations annuelles (filtrées par année)
-        BigDecimal totalCommitments = commitmentRepository.getTotalCommitmentsByBranchAndYear(branchId, year);
-        BigDecimal totalPaid = paymentRepository.getTotalPaymentsByBranchAndYear(branchId, year);
+    private DashboardBranchSummary calculateBranchSummary(Branch branch, LocalDate referenceDate) {
+        List<EducationClass> classes = classRepository.findActiveClassesByBranch(branch.getId());
+        List<ClassDashboardSummary> classSummaries = new ArrayList<>();
 
-        // Donations payées et en retard
-        BigDecimal annualDonationsPaid = totalPaid != null ? totalPaid : BigDecimal.ZERO;
-        BigDecimal annualDonationsLate = (totalCommitments != null && totalPaid != null)
-                ? totalCommitments.subtract(totalPaid)
-                : (totalCommitments != null ? totalCommitments : BigDecimal.ZERO);
+        BigDecimal branchFixed = ZERO, branchExtra = ZERO;
+        BigDecimal branchCommitted = ZERO, branchPaid = ZERO, branchExtraDon = ZERO;
 
-        // Solde de la branche
-        BigDecimal totalBranchExpenses = BigDecimal.ZERO;
-        if (annualFixedExpenses != null) {
-            totalBranchExpenses = totalBranchExpenses.add(annualFixedExpenses);
+        for (EducationClass cls : classes) {
+            int year = cls.getFinancialYear(referenceDate);
+            if (year == 0) continue; // classe pas encore démarrée
+
+            LocalDate periodStart = cls.getFinancialYearStart(year);
+
+            BigDecimal fixed     = nvl(expenseRepository.getTotalExpensesByClassTypeAndYear(cls.getId(), ExpenseType.FIXED, year));
+            BigDecimal extra     = nvl(expenseRepository.getTotalExpensesByClassTypeAndYear(cls.getId(), ExpenseType.EXTRA, year));
+            BigDecimal committed = nvl(commitmentRepository.getTotalCommitmentsByClassAndYear(cls.getId(), year));
+            BigDecimal paid      = nvl(paymentRepository.getTotalPaymentsByClassAndYear(cls.getId(), year));
+            BigDecimal extraDon  = nvl(extraDonationRepository.getTotalByClassAndYear(cls.getId(), year));
+
+            BigDecimal totalExp  = fixed.add(extra);
+            BigDecimal remaining = committed.subtract(paid).max(ZERO);
+            BigDecimal received  = paid.add(extraDon);
+            BigDecimal balance   = received.subtract(totalExp);
+
+            classSummaries.add(ClassDashboardSummary.builder()
+                    .classId(cls.getId())
+                    .classNameAr(cls.getNameAr())
+                    .classNameFr(cls.getNameFr())
+                    .financialYear(year)
+                    .periodStart(periodStart)
+                    .fixedExpenses(fixed)
+                    .extraExpenses(extra)
+                    .totalExpenses(totalExp)
+                    .committedDonations(committed)
+                    .paidDonations(paid)
+                    .remainingDonations(remaining)
+                    .extraDonations(extraDon)
+                    .totalReceived(received)
+                    .balance(balance)
+                    .build());
+
+            branchFixed    = branchFixed.add(fixed);
+            branchExtra    = branchExtra.add(extra);
+            branchCommitted = branchCommitted.add(committed);
+            branchPaid      = branchPaid.add(paid);
+            branchExtraDon  = branchExtraDon.add(extraDon);
         }
-        if (annualExtraExpenses != null) {
-            totalBranchExpenses = totalBranchExpenses.add(annualExtraExpenses);
-        }
-        BigDecimal branchBalance = annualDonationsPaid.subtract(totalBranchExpenses);
+
+        BigDecimal branchTotalExp     = branchFixed.add(branchExtra);
+        BigDecimal branchTotalReceived = branchPaid.add(branchExtraDon);
+        BigDecimal branchLate         = branchCommitted.subtract(branchPaid).max(ZERO);
+        BigDecimal branchBalance      = branchTotalReceived.subtract(branchTotalExp);
 
         return DashboardBranchSummary.builder()
                 .id(branch.getId())
                 .type(branch.getType())
                 .nameAr(branch.getNameAr())
-                .annualFixedExpenses(annualFixedExpenses != null ? annualFixedExpenses : BigDecimal.ZERO)
-                .annualExtraExpenses(annualExtraExpenses != null ? annualExtraExpenses : BigDecimal.ZERO)
-                .annualDonationsPaid(annualDonationsPaid)
-                .annualDonationsLate(annualDonationsLate)
+                .annualFixedExpenses(branchFixed)
+                .annualExtraExpenses(branchExtra)
+                .totalExpenses(branchTotalExp)
+                .totalCommittedDonations(branchCommitted)
+                .annualDonationsPaid(branchPaid)
+                .annualDonationsLate(branchLate)
+                .totalExtraDonations(branchExtraDon)
+                .totalReceived(branchTotalReceived)
                 .branchBalance(branchBalance)
+                .classes(classSummaries)
                 .build();
     }
 
-    private Integer getTotalUniqueDonors() {
-        // Compter tous les donateurs uniques de toutes les branches
+    private int countUniqueDonors() {
         try {
-            // On peut faire une requête native ou compter via tous les commitments
             return (int) commitmentRepository.findAll()
                     .stream()
                     .map(c -> c.getDonor().getId())
                     .distinct()
                     .count();
         } catch (Exception e) {
-            log.error("Erreur lors du comptage des donateurs: {}", e.getMessage());
             return 0;
         }
     }
 
-    private List<Integer> getAvailableYears() {
-        // Récupère toutes les années distinctes des commitments
-        try {
-            return commitmentRepository.findAll()
-                    .stream()
-                    .map(AnnualCommitment::getFinancialYear)
-                    .filter(year -> year != null && year > 0)
-                    .distinct()
-                    .sorted()
-                    .toList();
-        } catch (Exception e) {
-            log.error("Erreur lors de la récupération des années: {}", e.getMessage());
-            return List.of(java.time.LocalDate.now().getYear());
-        }
+    private static final BigDecimal ZERO = BigDecimal.ZERO;
+
+    private BigDecimal nvl(BigDecimal value) {
+        return value != null ? value : ZERO;
     }
 }

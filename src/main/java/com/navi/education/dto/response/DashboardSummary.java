@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -15,19 +16,24 @@ import java.util.List;
 public class DashboardSummary {
     private List<DashboardBranchSummary> branches;
 
+    // Date de référence
+    private LocalDate referenceDate;
+
     // Totaux globaux de l'institution
-    private BigDecimal totalFixedExpenses;       // إجمالي المصروفات الثابتة
-    private BigDecimal totalExtraExpenses;       // إجمالي المصروفات الإضافية
-    private BigDecimal totalDonationsPaid;       // إجمالي التبرعات المدفوعة
-    private BigDecimal totalDonationsLate;       // إجمالي التبرعات المتأخرة
-    private BigDecimal globalBalance;            // الرصيد العام للمؤسسة
+    private BigDecimal totalFixedExpenses;          // إجمالي المصروفات الثابتة
+    private BigDecimal totalExtraExpenses;          // إجمالي المصروفات الإضافية
+    private BigDecimal totalExpenses;               // إجمالي المصروفات
+
+    private BigDecimal totalCommittedDonations;     // إجمالي التعهدات
+    private BigDecimal totalDonationsPaid;          // إجمالي المدفوع من التعهدات
+    private BigDecimal totalDonationsLate;          // إجمالي المتأخر
+    private BigDecimal totalExtraDonations;         // إجمالي التبرعات الإضافية
+    private BigDecimal totalReceived;               // إجمالي المستلم (paid + extra)
+
+    private BigDecimal globalBalance;               // الرصيد العام (received - expenses)
 
     // Statistiques
     private Integer totalBranches;
     private Integer totalClasses;
     private Integer totalDonors;
-
-    // Année sélectionnée
-    private Integer selectedYear;                // السنة المالية المحددة
-    private List<Integer> availableYears;        // السنوات المتاحة
 }

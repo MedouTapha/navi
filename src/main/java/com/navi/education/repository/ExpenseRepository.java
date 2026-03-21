@@ -37,6 +37,12 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     BigDecimal getTotalExpensesByClassAndYear(@Param("classId") Long classId,
                                                @Param("financialYear") Integer financialYear);
 
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.educationClass.id = :classId " +
+           "AND e.expenseType = :type AND e.financialYear = :year")
+    BigDecimal getTotalExpensesByClassTypeAndYear(@Param("classId") Long classId,
+                                                   @Param("type") ExpenseType type,
+                                                   @Param("year") Integer year);
+
     @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.educationClass.branch.id = :branchId " +
            "AND e.expenseDate BETWEEN :startDate AND :endDate")
     BigDecimal getTotalExpensesByBranchAndPeriod(@Param("branchId") Long branchId,
@@ -56,4 +62,14 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     boolean existsByEducationClassIdAndExpenseTypeAndExpenseDateBetween(
             Long classId, ExpenseType expenseType, LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT e FROM Expense e " +
+           "JOIN FETCH e.educationClass c " +
+           "JOIN FETCH c.branch b " +
+           "WHERE b.id = :branchId " +
+           "AND e.expenseDate BETWEEN :startDate AND :endDate " +
+           "ORDER BY e.expenseType, c.id, e.id")
+    List<Expense> findByBranchAndPeriod(@Param("branchId") Long branchId,
+                                         @Param("startDate") LocalDate startDate,
+                                         @Param("endDate") LocalDate endDate);
 }
