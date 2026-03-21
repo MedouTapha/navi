@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
+
 @Controller
 @RequiredArgsConstructor
 public class WebViewController {
@@ -19,6 +21,7 @@ public class WebViewController {
     private final AnnualCommitmentService commitmentService;
     private final PaymentService paymentService;
     private final DashboardService dashboardService;
+    private final MonthlyReportService monthlyReportService;
 
     @GetMapping("/")
     public String index() {
@@ -98,6 +101,22 @@ public class WebViewController {
         model.addAttribute("donor", donorService.getDonorById(id));
         model.addAttribute("activePage", "donors");
         return "donors/form";
+    }
+
+    @GetMapping("/rapport-mensuel")
+    public String monthlyReport(
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
+            Model model) {
+        LocalDate now = LocalDate.now();
+        if (year == null) year = now.getYear();
+        if (month == null) month = now.getMonthValue();
+
+        model.addAttribute("report", monthlyReportService.getMonthlyReport(year, month));
+        model.addAttribute("currentYear", year);
+        model.addAttribute("currentMonth", month);
+        model.addAttribute("activePage", "rapport");
+        return "rapport-mensuel";
     }
 
     @GetMapping("/dashboard")

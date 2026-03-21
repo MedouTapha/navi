@@ -56,4 +56,14 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     boolean existsByEducationClassIdAndExpenseTypeAndExpenseDateBetween(
             Long classId, ExpenseType expenseType, LocalDate startDate, LocalDate endDate);
+
+    @Query("SELECT e FROM Expense e " +
+           "JOIN FETCH e.educationClass c " +
+           "JOIN FETCH c.branch b " +
+           "WHERE b.id = :branchId " +
+           "AND e.expenseDate BETWEEN :startDate AND :endDate " +
+           "ORDER BY e.expenseType, c.id, e.id")
+    List<Expense> findByBranchAndPeriod(@Param("branchId") Long branchId,
+                                         @Param("startDate") LocalDate startDate,
+                                         @Param("endDate") LocalDate endDate);
 }
