@@ -9,14 +9,14 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
             <div>
                 <h2 style="margin:0;" th:text="${donor.fullName}">اسم المتبرع</h2>
-                <p style="color:#7f8c8d; margin:5px 0;">
+                <p style="color:var(--text-muted); margin:5px 0;">
                     <strong>الهاتف:</strong> <span th:text="${donor.telephone}">-</span>
                     <span th:if="${donor.email}"> | <strong>البريد:</strong> <span th:text="${donor.email}">-</span></span>
                 </p>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
                 <a th:href="@{/donors/{id}/edit(id=${donor.id})}" class="btn btn-primary">تعديل</a>
-                <a th:href="@{/api/reports/donor/{id}/payments(id=${donor.id})}" class="btn btn-success" target="_blank">تقرير PDF</a>
+                <a th:href="@{/api/reports/donor/{id}/payments(id=${donor.id})}" class="btn btn-accent" target="_blank">تقرير PDF</a>
             </div>
         </div>
 
@@ -26,12 +26,12 @@
                 <div class="value" dir="ltr"
                      th:text="${#numbers.formatDecimal(donor.totalCommitments, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</div>
             </div>
-            <div class="stats-card" style="background:linear-gradient(135deg,#43e97b,#38f9d7);">
+            <div class="stats-card">
                 <h3>إجمالي المدفوع</h3>
                 <div class="value" dir="ltr"
                      th:text="${#numbers.formatDecimal(donor.totalPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</div>
             </div>
-            <div class="stats-card" style="background:linear-gradient(135deg,#fa709a,#fee140);">
+            <div class="stats-card" style="background:var(--accent);">
                 <h3>المتبقي</h3>
                 <div class="value" dir="ltr"
                      th:text="${#numbers.formatDecimal(donor.remainingBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</div>
@@ -41,8 +41,8 @@
 
     <!-- الالتزامات -->
     <div class="card">
-        <h3 class="card-header">📋 الالتزامات</h3>
-        <div th:if="${#lists.isEmpty(commitments)}" style="color:#6c757d; padding:20px; text-align:center;">
+        <h3 class="card-header">الالتزامات</h3>
+        <div th:if="${#lists.isEmpty(commitments)}" style="color:var(--text-muted); padding:20px; text-align:center;">
             لا توجد التزامات
         </div>
         <table class="table" th:unless="${#lists.isEmpty(commitments)}">
@@ -66,28 +66,27 @@
                 <td th:text="${commitment.financialYear}">2025</td>
                 <td dir="ltr"
                     th:text="${#numbers.formatDecimal(commitment.annualAmount, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
-                <td dir="ltr" style="color:#27ae60;font-weight:600;"
+                <td dir="ltr" style="color:var(--primary); font-weight:600;"
                     th:text="${#numbers.formatDecimal(commitment.totalPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
                 <td dir="ltr"
-                    th:style="${commitment.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'color:#e74c3c;font-weight:600;' : 'color:#27ae60;font-weight:600;'"
+                    th:style="${commitment.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'color:var(--danger);font-weight:600;' : 'color:var(--primary);font-weight:600;'"
                     th:text="${commitment.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${#numbers.formatDecimal(commitment.remainingBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU' : '✓ مكتمل'">0 MRU</td>
                 <td>
                     <div th:with="pct=${commitment.annualAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? commitment.totalPaid.multiply(T(java.math.BigDecimal).valueOf(100)).divide(commitment.annualAmount, 0, T(java.math.RoundingMode).HALF_UP).min(T(java.math.BigDecimal).valueOf(100)) : T(java.math.BigDecimal).ZERO}">
-                        <div style="background:#ecf0f1;border-radius:4px;height:8px;overflow:hidden;margin-bottom:2px;">
-                            <div th:style="'width:' + ${pct} + '%;background:' + (${pct.intValue() >= 100} ? '#2ecc71' : (${pct.intValue() >= 50} ? '#f39c12' : '#e74c3c')) + ';height:100%;'"
+                        <div style="background:#d0e8d8;border-radius:4px;height:8px;overflow:hidden;margin-bottom:2px;">
+                            <div th:style="'width:' + ${pct} + '%;background:' + (${pct.intValue() >= 100} ? '#1B6B3A' : (${pct.intValue() >= 50} ? '#B8860B' : '#C0392B')) + ';height:100%;'"
                                  style="transition:width .3s;"></div>
                         </div>
-                        <small th:text="${pct} + '%'" style="color:#7f8c8d;font-size:11px;">0%</small>
+                        <small th:text="${pct} + '%'" style="color:var(--text-muted);font-size:11px;">0%</small>
                     </div>
                 </td>
                 <td>
-                    <span th:if="${commitment.fullyPaid}" class="badge badge-success">✓ مكتمل</span>
+                    <span th:if="${commitment.fullyPaid}"   class="badge badge-success">✓ مكتمل</span>
                     <span th:unless="${commitment.fullyPaid}" class="badge badge-warning">جاري</span>
                 </td>
                 <td>
                     <button th:unless="${commitment.fullyPaid}"
-                            class="btn btn-sm"
-                            style="background:#27ae60;color:white;padding:4px 10px;font-size:12px;"
+                            class="btn btn-primary btn-sm"
                             th:onclick="|openPaymentModal(${commitment.id}, '${commitment.className}', ${commitment.remainingBalance})|">
                         + دفعة
                     </button>
@@ -95,13 +94,13 @@
             </tr>
             </tbody>
             <tfoot th:if="${not #lists.isEmpty(commitments)}">
-            <tr style="font-weight:700;background:#f8f9fa;border-top:2px solid #dee2e6;">
+            <tr style="font-weight:700; background:var(--primary-light); border-top:2px solid var(--primary);">
                 <td colspan="3" style="text-align:right;">الإجمالي</td>
                 <td dir="ltr"
                     th:text="${#numbers.formatDecimal(donor.totalCommitments, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
-                <td dir="ltr" style="color:#27ae60;"
+                <td dir="ltr" style="color:var(--primary);"
                     th:text="${#numbers.formatDecimal(donor.totalPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
-                <td dir="ltr" style="color:#e74c3c;"
+                <td dir="ltr" style="color:var(--danger);"
                     th:text="${#numbers.formatDecimal(donor.remainingBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
                 <td colspan="3"></td>
             </tr>
@@ -111,8 +110,8 @@
 
     <!-- سجل المدفوعات -->
     <div class="card">
-        <h3 class="card-header">💳 سجل المدفوعات</h3>
-        <div th:if="${#lists.isEmpty(payments)}" style="color:#6c757d; padding:20px; text-align:center;">
+        <h3 class="card-header">سجل المدفوعات</h3>
+        <div th:if="${#lists.isEmpty(payments)}" style="color:var(--text-muted); padding:20px; text-align:center;">
             لا توجد مدفوعات مسجلة
         </div>
         <table class="table" th:unless="${#lists.isEmpty(payments)}">
@@ -129,7 +128,7 @@
             <tr th:each="payment : ${payments}">
                 <td th:text="${#temporals.format(payment.paymentDate, 'dd/MM/yyyy')}">-</td>
                 <td th:text="${payment.className}">-</td>
-                <td dir="ltr" style="color:#27ae60;font-weight:600;"
+                <td dir="ltr" style="color:var(--primary); font-weight:600;"
                     th:text="${#numbers.formatDecimal(payment.amount, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
                 <td th:text="${payment.paymentMethod.displayName}">-</td>
                 <td th:text="${payment.receiptNumber != null ? payment.receiptNumber : '-'}">-</td>
@@ -145,12 +144,12 @@
 
 <!-- مودال تسجيل دفعة -->
 <div id="paymentModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:10px; padding:30px; width:95%; max-width:440px; box-shadow:0 10px 40px rgba(0,0,0,.3);">
-        <h3 style="margin-bottom:5px; color:#2c3e50;">تسجيل دفعة</h3>
-        <p id="pmtClassName" style="color:#667eea; font-weight:600; margin-bottom:20px;"></p>
+    <div style="background:#fff; border-radius:10px; padding:30px; width:95%; max-width:440px; box-shadow:0 10px 40px rgba(0,0,0,.25); border-top:4px solid var(--primary);">
+        <h3 style="margin-bottom:5px; color:var(--primary);">تسجيل دفعة</h3>
+        <p id="pmtClassName" style="color:var(--accent); font-weight:600; margin-bottom:20px;"></p>
         <input type="hidden" id="pmtCommitmentId" />
         <div class="form-group">
-            <label>المبلغ (MRU) — المتبقي: <span id="pmtMax" style="color:#e74c3c; font-weight:600;"></span> MRU</label>
+            <label>المبلغ (MRU) — المتبقي: <span id="pmtMax" style="color:var(--danger); font-weight:600;"></span> MRU</label>
             <input type="number" id="pmtAmount" class="form-control" min="1" placeholder="0" />
         </div>
         <div class="form-group">
@@ -174,7 +173,7 @@
             <button class="btn btn-secondary" onclick="document.getElementById('paymentModal').style.display='none'">إلغاء</button>
             <button class="btn btn-primary" onclick="submitPayment()">حفظ الدفعة</button>
         </div>
-        <p id="pmtError" style="color:#e74c3c; margin-top:10px; display:none;"></p>
+        <p id="pmtError" style="color:var(--danger); margin-top:10px; display:none;"></p>
     </div>
 </div>
 

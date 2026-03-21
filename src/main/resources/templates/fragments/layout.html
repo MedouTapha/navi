@@ -3,18 +3,30 @@
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title}">نافي للتعليم</title>
+    <title th:text="${title}">معهد الإمام نافع</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary:   #1B6B3A;
+            --primary-light: #e8f5ee;
+            --primary-dark:  #134d2a;
+            --accent:    #B8860B;
+            --accent-light: #fdf6e3;
+            --danger:    #C0392B;
+            --danger-light: #fdecea;
+            --text:      #1a2e1a;
+            --text-muted:#6c7569;
+            --bg:        #f4f6f4;
+            --white:     #ffffff;
+            --border:    #d8e4d8;
+            --shadow:    0 2px 8px rgba(27,107,58,.10);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Tajawal', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f5f6fa;
-            color: #2c3e50;
+            background-color: var(--bg);
+            color: var(--text);
             line-height: 1.8;
             direction: rtl;
             text-align: right;
@@ -26,23 +38,24 @@
             padding: 15px;
         }
 
-        /* Header */
+        /* ── Header ── */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--primary);
+            color: var(--white);
             padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,.15);
         }
 
         .header h1 {
-            font-size: 24px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: .5px;
         }
 
-        /* Navigation */
+        /* ── Navigation ── */
         .nav {
-            background: white;
-            border-bottom: 2px solid #e1e8ed;
+            background: var(--white);
+            border-bottom: 3px solid var(--primary);
             margin-bottom: 20px;
             overflow-x: auto;
             white-space: nowrap;
@@ -56,109 +69,102 @@
         }
 
         .nav-links a {
-            padding: 15px 20px;
+            padding: 14px 20px;
             text-decoration: none;
-            color: #2c3e50;
+            color: var(--text);
             display: block;
-            transition: all 0.3s;
+            transition: color .2s, border-bottom-color .2s;
             border-bottom: 3px solid transparent;
+            margin-bottom: -3px;
+            font-size: 14px;
         }
 
-        .nav-links a:hover, .nav-links a.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
         }
 
-        /* Cards */
+        /* ── Cards ── */
         .card {
-            background: white;
+            background: var(--white);
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
+            border-top: 3px solid var(--primary);
         }
 
         .card-header {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: 700;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+            border-bottom: 1px solid var(--border);
+            color: var(--primary);
         }
 
-        /* Buttons */
+        /* ── Buttons ── */
         .btn {
             display: inline-block;
             padding: 10px 20px;
             border-radius: 6px;
             text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
+            font-weight: 600;
+            transition: background .2s, opacity .2s;
             border: none;
             cursor: pointer;
             font-size: 14px;
+            font-family: inherit;
         }
 
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
+        .btn-primary   { background: var(--primary);  color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); }
 
-        .btn-primary:hover {
-            background: #5568d3;
-        }
+        .btn-success   { background: var(--primary);  color: var(--white); }
+        .btn-success:hover { background: var(--primary-dark); }
 
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
+        .btn-danger    { background: var(--danger);   color: var(--white); }
+        .btn-danger:hover { opacity: .9; }
 
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
+        .btn-secondary { background: #6c757d; color: var(--white); }
+        .btn-secondary:hover { background: #5a6268; }
 
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
+        .btn-accent    { background: var(--accent);   color: var(--white); }
+        .btn-accent:hover { opacity: .9; }
 
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 13px;
-        }
+        .btn-sm { padding: 6px 12px; font-size: 13px; }
 
-        /* Table */
+        /* ── Table ── */
         .table-wrapper {
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling sur iOS */
+            -webkit-overflow-scrolling: touch;
         }
 
         .table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
-            min-width: 600px; /* Force minimum width pour scroll horizontal sur mobile */
+            background: var(--white);
+            min-width: 600px;
         }
 
         .table th,
         .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e1e8ed;
+            padding: 11px 12px;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
         }
 
         .table th {
-            background: #f8f9fa;
+            background: var(--primary);
+            color: var(--white);
             font-weight: 600;
-            color: #2c3e50;
+            font-size: 13px;
         }
 
-        .table tr:hover {
-            background: #f8f9fa;
-        }
+        .table tr:hover td { background: var(--primary-light); }
 
-        /* Grid */
+        /* ── Grid ── */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -166,7 +172,6 @@
             margin-bottom: 20px;
         }
 
-        /* Grid financier - 2 colonnes sur desktop, 1 sur mobile */
         .financial-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -174,197 +179,119 @@
             margin: 20px 0;
         }
 
-        /* Bloc financier */
+        /* ── Financial blocks ── */
         .financial-block {
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
-        .financial-block h4 {
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
+        .financial-block h4 { margin-bottom: 15px; font-size: 15px; }
+        .financial-block p  { font-size: 14px; line-height: 1.8; margin: 7px 0; }
 
-        .financial-block p {
-            font-size: 15px;
-            line-height: 1.8;
-            margin: 8px 0;
-        }
-
-        /* Bloc solde */
+        /* ── Balance block ── */
         .balance-block {
             margin: 20px 0;
             padding: 20px;
             text-align: center;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
-        .balance-block h3 {
-            margin: 0;
-            font-size: 18px;
-        }
+        .balance-block h3 { margin: 0; font-size: 17px; }
 
         .balance-amount {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 28px;
+            font-weight: 700;
             margin: 10px 0;
         }
 
-        /* Stats */
+        /* ── Stats cards ── */
         .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--primary);
+            color: var(--white);
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
-        .stats-card h3 {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
+        .stats-card h3      { font-size: 13px; opacity: .85; margin-bottom: 10px; }
+        .stats-card .value  { font-size: 30px; font-weight: 700; }
 
-        .stats-card .value {
-            font-size: 32px;
-            font-weight: 700;
-        }
-
-        /* Form */
-        .form-group {
-            margin-bottom: 20px;
-        }
+        /* ── Form ── */
+        .form-group { margin-bottom: 18px; }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #2c3e50;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 14px;
         }
 
         .form-control {
             width: 100%;
-            padding: 10px 15px;
-            border: 2px solid #e1e8ed;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
             border-radius: 6px;
             font-size: 14px;
-            transition: border-color 0.3s;
+            font-family: inherit;
+            transition: border-color .2s;
+            background: var(--white);
         }
 
         .form-control:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary);
         }
 
-        /* Responsive - Optimisé pour iPhone */
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .table {
-                font-size: 14px;
-            }
-
-            .table th,
-            .table td {
-                padding: 8px;
-                font-size: 13px;
-            }
-
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            /* Grille financière passe en 1 colonne sur mobile */
-            .financial-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-                margin: 15px 0;
-            }
-
-            .financial-block {
-                padding: 15px;
-            }
-
-            .financial-block h4 {
-                font-size: 15px;
-            }
-
-            .financial-block p {
-                font-size: 14px;
-            }
-
-            .balance-block {
-                padding: 15px;
-            }
-
-            .balance-block h3 {
-                font-size: 15px;
-            }
-
-            .balance-amount {
-                font-size: 22px;
-            }
-
-            /* Boutons plus grands pour le touch */
-            .btn {
-                padding: 12px 24px;
-                font-size: 15px;
-                min-height: 44px; /* Apple recommandé pour touch targets */
-            }
-
-            .btn-sm {
-                padding: 10px 16px;
-                font-size: 14px;
-                min-height: 44px;
-            }
-
-            /* Navigation scrollable sur mobile */
-            .nav-links a {
-                padding: 12px 16px;
-                font-size: 14px;
-            }
-
-            /* Cartes plus compactes */
-            .card {
-                padding: 15px;
-                border-radius: 6px;
-            }
-
-            .card-header {
-                font-size: 18px;
-            }
-        }
-
-        /* Badge */
+        /* ── Badges ── */
         .badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 3px 10px;
             border-radius: 12px;
             font-size: 12px;
             font-weight: 600;
         }
 
         .badge-success {
-            background: #d4edda;
-            color: #155724;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border: 1px solid #b8d8c8;
         }
 
         .badge-warning {
-            background: #fff3cd;
-            color: #856404;
+            background: var(--accent-light);
+            color: #7a5800;
+            border: 1px solid #e8d080;
         }
 
         .badge-info {
-            background: #d1ecf1;
-            color: #0c5460;
+            background: #e8f0ff;
+            color: #2c4a8a;
+            border: 1px solid #b8ccf0;
+        }
+
+        /* ── Semantic text colors ── */
+        .text-success { color: var(--primary)  !important; }
+        .text-danger  { color: var(--danger)   !important; }
+        .text-accent  { color: var(--accent)   !important; }
+        .text-muted   { color: var(--text-muted) !important; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .header h1 { font-size: 18px; }
+            .table { font-size: 13px; }
+            .table th, .table td { padding: 8px; }
+            .grid { grid-template-columns: 1fr; }
+            .financial-grid { grid-template-columns: 1fr; gap: 12px; margin: 12px 0; }
+            .btn { padding: 12px 18px; font-size: 14px; min-height: 44px; }
+            .btn-sm { padding: 8px 14px; font-size: 13px; min-height: 40px; }
+            .nav-links a { padding: 12px 14px; font-size: 13px; }
+            .card { padding: 14px; }
+            .card-header { font-size: 16px; }
+            .balance-amount { font-size: 22px; }
         }
     </style>
 </head>
@@ -373,16 +300,16 @@
 <div th:fragment="header">
     <div class="header">
         <div class="container">
-            <h1>🎓 نافي - إدارة التعليم</h1>
+            <h1>معهد الإمام نافع لتعليم القرآن الكريم وعلومه</h1>
         </div>
     </div>
     <nav class="nav">
         <ul class="nav-links">
-            <li><a href="/dashboard" th:classappend="${activePage == 'dashboard'} ? 'active'">لوحة التحكم</a></li>
-            <li><a href="/branches" th:classappend="${activePage == 'branches'} ? 'active'">الفروع</a></li>
-            <li><a href="/classes" th:classappend="${activePage == 'classes'} ? 'active'">الفصول</a></li>
-            <li><a href="/donors" th:classappend="${activePage == 'donors'} ? 'active'">المتبرعين</a></li>
-            <li><a href="/rapport-mensuel" th:classappend="${activePage == 'rapport'} ? 'active'">التقرير الشهري</a></li>
+            <li><a href="/dashboard"      th:classappend="${activePage == 'dashboard'} ? 'active'">لوحة التحكم</a></li>
+            <li><a href="/branches"       th:classappend="${activePage == 'branches'}  ? 'active'">الفروع</a></li>
+            <li><a href="/classes"        th:classappend="${activePage == 'classes'}   ? 'active'">الفصول</a></li>
+            <li><a href="/donors"         th:classappend="${activePage == 'donors'}    ? 'active'">المتبرعون</a></li>
+            <li><a href="/rapport-mensuel" th:classappend="${activePage == 'rapport'}  ? 'active'">التقرير الشهري</a></li>
         </ul>
     </nav>
 </div>

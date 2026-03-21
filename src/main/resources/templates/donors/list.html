@@ -7,11 +7,11 @@
 <div class="container">
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 class="card-header" style="margin:0;">🤝 قائمة المتبرعين</h2>
+            <h2 class="card-header" style="margin:0;">المتبرعون</h2>
             <a href="/donors/new" class="btn btn-primary">+ متبرع جديد</a>
         </div>
 
-        <div style="overflow-x:auto;">
+        <div class="table-wrapper">
             <table class="table">
                 <thead>
                 <tr>
@@ -30,22 +30,22 @@
                     <td th:text="${donor.telephone}">-</td>
                     <td dir="ltr"
                         th:text="${#numbers.formatDecimal(donor.totalCommitments, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
-                    <td dir="ltr" style="color:#27ae60;font-weight:600;"
+                    <td dir="ltr" style="color:var(--primary); font-weight:600;"
                         th:text="${#numbers.formatDecimal(donor.totalPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
-                    <td dir="ltr" style="color:#e74c3c;font-weight:600;"
+                    <td dir="ltr" style="color:var(--danger); font-weight:600;"
                         th:text="${donor.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${#numbers.formatDecimal(donor.remainingBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU' : '✓'">0 MRU</td>
                     <td>
                         <div th:with="pct=${donor.totalCommitments.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? donor.totalPaid.multiply(T(java.math.BigDecimal).valueOf(100)).divide(donor.totalCommitments, 0, T(java.math.RoundingMode).HALF_UP).min(T(java.math.BigDecimal).valueOf(100)) : T(java.math.BigDecimal).ZERO}">
-                            <div style="background:#ecf0f1;border-radius:4px;height:8px;overflow:hidden;margin-bottom:2px;">
-                                <div th:style="'width:' + ${pct} + '%;background:' + (${pct.intValue() >= 100} ? '#2ecc71' : (${pct.intValue() >= 50} ? '#f39c12' : '#e74c3c')) + ';height:100%;'"></div>
+                            <div style="background:#d0e8d8;border-radius:4px;height:8px;overflow:hidden;margin-bottom:2px;">
+                                <div th:style="'width:' + ${pct} + '%;background:' + (${pct.intValue() >= 100} ? '#1B6B3A' : (${pct.intValue() >= 50} ? '#B8860B' : '#C0392B')) + ';height:100%;'"></div>
                             </div>
-                            <small th:text="${pct} + '%'" style="color:#7f8c8d;font-size:11px;">0%</small>
+                            <small th:text="${pct} + '%'" style="color:var(--text-muted);font-size:11px;">0%</small>
                         </div>
                     </td>
                     <td>
                         <a th:href="@{/donors/{id}(id=${donor.id})}" class="btn btn-primary btn-sm">عرض</a>
                         <a th:href="@{/api/reports/donor/{id}/payments(id=${donor.id})}"
-                           class="btn btn-success btn-sm" target="_blank">PDF</a>
+                           class="btn btn-accent btn-sm" target="_blank">PDF</a>
                     </td>
                 </tr>
                 </tbody>
