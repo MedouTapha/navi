@@ -11,7 +11,7 @@
         <form method="get" th:action="@{/branches/{id}(id=${branchSummary.id})}"
               style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
             <div class="form-group" style="margin-bottom:0; flex:1; min-width:180px;">
-                <label>📅 تاريخ الاحتساب</label>
+                <label>تاريخ الاحتساب</label>
                 <input type="date" name="date" class="form-control" th:value="${currentDate}" />
             </div>
             <button type="submit" class="btn btn-primary">تحديث</button>
@@ -25,8 +25,8 @@
         <!-- الملخص المالي -->
         <div class="financial-grid">
             <!-- المصروفات -->
-            <div class="financial-block" style="background:#fff3cd; border:2px solid #ffc107;">
-                <h4 style="color:#856404;">📉 المصروفات</h4>
+            <div class="financial-block" style="background:var(--accent-light); border:2px solid var(--accent);">
+                <h4 style="color:var(--accent);">المصروفات</h4>
                 <table style="width:100%; font-size:14px;">
                     <tr>
                         <td>المصروفات الثابتة (رواتب):</td>
@@ -38,17 +38,17 @@
                         <td dir="ltr" style="text-align:left; font-weight:600;"
                             th:text="${#numbers.formatDecimal(branchSummary.annualExtraExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     </tr>
-                    <tr style="border-top:2px solid #856404; font-weight:bold;">
+                    <tr style="border-top:2px solid var(--accent); font-weight:bold;">
                         <td>الإجمالي:</td>
-                        <td dir="ltr" style="text-align:left; color:#856404; font-size:16px;"
+                        <td dir="ltr" style="text-align:left; color:var(--accent); font-size:16px;"
                             th:text="${#numbers.formatDecimal(branchSummary.totalExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     </tr>
                 </table>
             </div>
 
             <!-- التبرعات -->
-            <div class="financial-block" style="background:#d4edda; border:2px solid #28a745;">
-                <h4 style="color:#155724;">💰 التبرعات</h4>
+            <div class="financial-block" style="background:var(--primary-light); border:2px solid var(--primary);">
+                <h4 style="color:var(--primary-dark);">التبرعات</h4>
                 <table style="width:100%; font-size:14px;">
                     <tr>
                         <td>الالتزامات (المتعهد به):</td>
@@ -57,22 +57,22 @@
                     </tr>
                     <tr>
                         <td>المدفوع من الالتزامات:</td>
-                        <td dir="ltr" style="text-align:left; color:#28a745; font-weight:600;"
+                        <td dir="ltr" style="text-align:left; color:var(--primary); font-weight:600;"
                             th:text="${#numbers.formatDecimal(branchSummary.annualDonationsPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     </tr>
                     <tr>
                         <td>التبرعات الإضافية (هبات):</td>
-                        <td dir="ltr" style="text-align:left; color:#17a2b8; font-weight:600;"
+                        <td dir="ltr" style="text-align:left; color:var(--accent); font-weight:600;"
                             th:text="${#numbers.formatDecimal(branchSummary.totalExtraDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     </tr>
                     <tr>
                         <td>المتأخر من الالتزامات:</td>
-                        <td dir="ltr" style="text-align:left; color:#dc3545; font-weight:600;"
+                        <td dir="ltr" style="text-align:left; color:var(--danger); font-weight:600;"
                             th:text="${#numbers.formatDecimal(branchSummary.annualDonationsLate, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     </tr>
-                    <tr style="border-top:2px solid #155724; font-weight:bold;">
+                    <tr style="border-top:2px solid var(--primary); font-weight:bold;">
                         <td>إجمالي المستلم:</td>
-                        <td dir="ltr" style="text-align:left; color:#155724; font-size:16px;"
+                        <td dir="ltr" style="text-align:left; color:var(--primary); font-size:16px;"
                             th:text="${#numbers.formatDecimal(branchSummary.totalReceived, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     </tr>
                 </table>
@@ -82,31 +82,32 @@
         <!-- الرصيد النهائي -->
         <div class="balance-block"
              th:style="${branchSummary.branchBalance >= 0}
-                 ? 'background:#d1ecf1; border:3px solid #17a2b8;'
-                 : 'background:#f8d7da; border:3px solid #dc3545;'">
-            <h3 th:style="${branchSummary.branchBalance >= 0} ? 'color:#0c5460;' : 'color:#721c24;'">
-                💵 الرصيد (المستلم − المصروفات)
+                 ? 'background:var(--primary-light); border:2px solid var(--primary);'
+                 : 'background:var(--danger-light); border:2px solid var(--danger);'">
+            <h3 th:style="${branchSummary.branchBalance >= 0} ? 'color:var(--primary-dark);' : 'color:var(--danger);'">
+                الرصيد (المستلم − المصروفات)
             </h3>
-            <div class="balance-amount" dir="ltr" style="text-align:center;"
+            <div class="balance-amount" dir="ltr"
+                 th:style="${branchSummary.branchBalance >= 0} ? 'color:var(--primary);' : 'color:var(--danger);'"
                  th:text="${#numbers.formatDecimal(branchSummary.branchBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'">
                 0 MRU
             </div>
-            <p style="margin-top:8px; font-size:13px; color:#6c757d;">
-                <span th:if="${branchSummary.branchBalance >= 0}">✅ وضع إيجابي</span>
-                <span th:unless="${branchSummary.branchBalance >= 0}">⚠️ عجز مالي</span>
+            <p style="margin-top:8px; font-size:13px; color:var(--text-muted);">
+                <span th:if="${branchSummary.branchBalance >= 0}">وضع إيجابي</span>
+                <span th:unless="${branchSummary.branchBalance >= 0}">عجز مالي</span>
             </p>
         </div>
 
         <!-- تفصيل الفصول -->
-        <h3 style="margin-top:24px; margin-bottom:12px;">
-            📚 تفصيل الفصول
-            <small style="font-size:13px; color:#6c757d; font-weight:normal;">
-                (السنة المالية الحالية لكل فصل حتى <span th:text="${currentDate}"></span>)
+        <h3 style="margin-top:24px; margin-bottom:12px; color:var(--primary);">
+            تفصيل الفصول
+            <small style="font-size:13px; color:var(--text-muted); font-weight:normal;">
+                (حتى <span th:text="${currentDate}"></span>)
             </small>
         </h3>
 
         <div th:if="${branchSummary.classes.isEmpty()}"
-             style="text-align:center; color:#6c757d; padding:20px;">
+             style="text-align:center; color:var(--text-muted); padding:20px;">
             لا توجد فصول نشطة لهذا الفرع
         </div>
 
@@ -129,27 +130,27 @@
                 <tbody>
                 <tr th:each="cls : ${branchSummary.classes}">
                     <td>
-                        <div th:text="${cls.classNameAr}">-</div>
-                        <small style="color:#7f8c8d;" th:text="${cls.classNameFr}">-</small>
+                        <div style="font-weight:600;" th:text="${cls.classNameAr}">-</div>
+                        <small style="color:var(--text-muted);" th:text="${cls.classNameFr}">-</small>
                     </td>
                     <td>
                         <span class="badge badge-info" th:text="${cls.financialYear}">-</span>
-                        <br><small style="color:#6c757d;" th:text="'من ' + ${cls.periodStart}"></small>
+                        <br><small style="color:var(--text-muted);" th:text="'من ' + ${cls.periodStart}"></small>
                     </td>
-                    <td dir="ltr" style="color:#856404;"
+                    <td dir="ltr" style="color:var(--accent);"
                         th:text="${#numbers.formatDecimal(cls.fixedExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
-                    <td dir="ltr" style="color:#856404;"
+                    <td dir="ltr" style="color:var(--accent);"
                         th:text="${#numbers.formatDecimal(cls.extraExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     <td dir="ltr"
                         th:text="${#numbers.formatDecimal(cls.committedDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
-                    <td dir="ltr" style="color:#28a745; font-weight:600;"
+                    <td dir="ltr" style="color:var(--primary); font-weight:600;"
                         th:text="${#numbers.formatDecimal(cls.paidDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
-                    <td dir="ltr" style="color:#17a2b8;"
+                    <td dir="ltr" style="color:var(--accent);"
                         th:text="${#numbers.formatDecimal(cls.extraDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
-                    <td dir="ltr" style="color:#dc3545;"
+                    <td dir="ltr" style="color:var(--danger);"
                         th:text="${#numbers.formatDecimal(cls.remainingDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     <td dir="ltr"
-                        th:style="${cls.balance >= 0} ? 'color:#17a2b8; font-weight:bold;' : 'color:#dc3545; font-weight:bold;'"
+                        th:style="${cls.balance >= 0} ? 'color:var(--primary); font-weight:bold;' : 'color:var(--danger); font-weight:bold;'"
                         th:text="${#numbers.formatDecimal(cls.balance, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     <td>
                         <a th:href="@{/classes/{id}(id=${cls.classId})}"
@@ -158,7 +159,7 @@
                 </tr>
                 </tbody>
                 <tfoot>
-                <tr style="background:#f0f4f8; font-weight:bold;">
+                <tr style="background:var(--primary-light); font-weight:bold;">
                     <td colspan="2">المجموع</td>
                     <td dir="ltr" th:text="${#numbers.formatDecimal(branchSummary.annualFixedExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     <td dir="ltr" th:text="${#numbers.formatDecimal(branchSummary.annualExtraExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
@@ -167,7 +168,7 @@
                     <td dir="ltr" th:text="${#numbers.formatDecimal(branchSummary.totalExtraDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     <td dir="ltr" th:text="${#numbers.formatDecimal(branchSummary.annualDonationsLate, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     <td dir="ltr"
-                        th:style="${branchSummary.branchBalance >= 0} ? 'color:#17a2b8;' : 'color:#dc3545;'"
+                        th:style="${branchSummary.branchBalance >= 0} ? 'color:var(--primary);' : 'color:var(--danger);'"
                         th:text="${#numbers.formatDecimal(branchSummary.branchBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                     <td></td>
                 </tr>
@@ -176,7 +177,7 @@
         </div>
 
         <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-            <a th:href="@{/dashboard(date=${currentDate})}" class="btn btn-secondary">رجوع للوحة التحكم</a>
+            <a th:href="@{/dashboard(date=${currentDate})}" class="btn btn-secondary">لوحة التحكم</a>
             <a href="/branches" class="btn btn-secondary">قائمة الفروع</a>
         </div>
     </div>
