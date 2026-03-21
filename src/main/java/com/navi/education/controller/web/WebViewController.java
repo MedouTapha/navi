@@ -65,6 +65,7 @@ public class WebViewController {
         model.addAttribute("class", classService.getClassById(id));
         model.addAttribute("expenses", expenseService.getExpensesByClass(id));
         model.addAttribute("commitments", commitmentService.getCommitmentsByClass(id));
+        model.addAttribute("payments", paymentService.getPaymentsByClass(id));
         model.addAttribute("activePage", "classes");
         return "classes/view";
     }
