@@ -115,7 +115,13 @@
 
     <!-- المصروفات -->
     <div class="card">
-        <h3 class="card-header">📉 المصروفات</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 class="card-header" style="margin:0;">📉 المصروفات</h3>
+            <button class="btn btn-primary" style="margin:10px 0;"
+                    onclick="document.getElementById('expenseModal').style.display='flex'">
+                + إضافة مصروفة إضافية
+            </button>
+        </div>
         <div th:if="${#lists.isEmpty(expenses)}" style="color:#6c757d; padding:20px; text-align:center;">
             لا توجد مصروفات مسجلة
         </div>
@@ -185,23 +191,73 @@
     </div>
 </div>
 
+<!-- مودال إضافة مصروفة إضافية -->
+<div id="expenseModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:10px; padding:30px; width:95%; max-width:420px; box-shadow:0 10px 40px rgba(0,0,0,.3);">
+        <h3 style="margin-bottom:20px; color:#2c3e50;">إضافة مصروفة إضافية</h3>
+        <div class="form-group">
+            <label>المبلغ (MRU)</label>
+            <input type="number" id="expAmount" class="form-control" min="1" placeholder="0" />
+        </div>
+        <div class="form-group">
+            <label>التاريخ</label>
+            <input type="date" id="expDate" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>البيان / الوصف</label>
+            <input type="text" id="expDesc" class="form-control" placeholder="مثال: النقل، صيانة..." />
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+            <button class="btn btn-secondary" onclick="document.getElementById('expenseModal').style.display='none'">إلغاء</button>
+            <button class="btn btn-primary" onclick="submitExpense()">حفظ</button>
+        </div>
+        <p id="expError" style="color:#e74c3c; margin-top:10px; display:none;"></p>
+    </div>
+</div>
+
 <style>
 .extra-row td { background:#fff8e1 !important; }
 </style>
 
-<script>
+<script th:inline="javascript">
+const CLASS_ID = /*[[${class.id}]]*/ 0;
+
+// رصد اليوم كقيمة افتراضية لتاريخ المصروفة
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('expDate').value = new Date().toISOString().slice(0,10);
+});
+
+function submitExpense() {
+    const amount = parseFloat(document.getElementById('expAmount').value);
+    const date   = document.getElementById('expDate').value;
+    const desc   = document.getElementById('expDesc').value.trim();
+    const err    = document.getElementById('expError');
+
+    if (!amount || amount <= 0) { showErr(err, 'أدخل مبلغاً صحيحاً'); return; }
+    if (!date)   { showErr(err, 'أدخل التاريخ'); return; }
+    if (!desc)   { showErr(err, 'أدخل وصف المصروفة'); return; }
+
+    fetch('/api/expenses/extra', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classId: CLASS_ID, amount, expenseDate: date, description: desc })
+    }).then(r => {
+        if (r.ok || r.status === 201) { location.reload(); }
+        else r.text().then(t => showErr(err, 'خطأ: ' + t));
+    }).catch(() => showErr(err, 'خطأ في الاتصال'));
+}
+
 function deleteExpense(id) {
     if (!confirm('هل تريد حذف هذه المصروفة الإضافية؟')) return;
     fetch('/api/expenses/' + id, { method: 'DELETE' })
         .then(r => {
-            if (r.ok || r.status === 204) {
-                location.reload();
-            } else {
-                r.text().then(t => alert('خطأ: ' + t));
-            }
+            if (r.ok || r.status === 204) { location.reload(); }
+            else r.text().then(t => alert('خطأ: ' + t));
         })
         .catch(() => alert('خطأ في الاتصال'));
 }
+
+function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
 </script>
 
 </body>

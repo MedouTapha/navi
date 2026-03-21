@@ -1,40 +1,51 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Liste des Donateurs')}"></head>
+<head th:replace="~{fragments/layout :: head('قائمة المتبرعين')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <div class="container">
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 class="card-header" style="margin: 0;">🤝 Liste des Donateurs</h2>
-            <a href="/donors/new" class="btn btn-primary">+ Nouveau Donateur</a>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 class="card-header" style="margin:0;">🤝 قائمة المتبرعين</h2>
+            <a href="/donors/new" class="btn btn-primary">+ متبرع جديد</a>
         </div>
 
-        <div style="overflow-x: auto;">
+        <div style="overflow-x:auto;">
             <table class="table">
                 <thead>
                 <tr>
-                    <th>Nom Complet</th>
-                    <th>Téléphone</th>
-                    <th>Email</th>
-                    <th>Total Engagements</th>
-                    <th>Total Payé</th>
-                    <th>Solde Restant</th>
-                    <th>Actions</th>
+                    <th>الاسم الكامل</th>
+                    <th>الهاتف</th>
+                    <th>إجمالي الالتزامات</th>
+                    <th>المدفوع</th>
+                    <th>المتبقي</th>
+                    <th style="min-width:120px;">التقدم</th>
+                    <th>إجراء</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="donor : ${donors}">
-                    <td th:text="${donor.fullName}">Nom</td>
-                    <td th:text="${donor.telephone}">Téléphone</td>
-                    <td th:text="${donor.email}">Email</td>
-                    <td th:text="${#numbers.formatDecimal(donor.totalCommitments, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
-                    <td style="color: #27ae60; font-weight: 600;" th:text="${#numbers.formatDecimal(donor.totalPaid, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
-                    <td style="color: #e74c3c; font-weight: 600;" th:text="${#numbers.formatDecimal(donor.remainingBalance, 0, 'COMMA', 2, 'POINT')} + ' MRU'">0.00 MRU</td>
+                    <td style="font-weight:600;" th:text="${donor.fullName}">-</td>
+                    <td th:text="${donor.telephone}">-</td>
+                    <td dir="ltr"
+                        th:text="${#numbers.formatDecimal(donor.totalCommitments, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                    <td dir="ltr" style="color:#27ae60;font-weight:600;"
+                        th:text="${#numbers.formatDecimal(donor.totalPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                    <td dir="ltr" style="color:#e74c3c;font-weight:600;"
+                        th:text="${donor.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${#numbers.formatDecimal(donor.remainingBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU' : '✓'">0 MRU</td>
                     <td>
-                        <a th:href="@{/donors/{id}(id=${donor.id})}" class="btn btn-primary btn-sm">Voir</a>
-                        <a th:href="@{/api/reports/donor/{id}/payments(id=${donor.id})}" class="btn btn-success btn-sm" target="_blank">Rapport</a>
+                        <div th:with="pct=${donor.totalCommitments.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? donor.totalPaid.multiply(T(java.math.BigDecimal).valueOf(100)).divide(donor.totalCommitments, 0, T(java.math.RoundingMode).HALF_UP).min(T(java.math.BigDecimal).valueOf(100)) : T(java.math.BigDecimal).ZERO}">
+                            <div style="background:#ecf0f1;border-radius:4px;height:8px;overflow:hidden;margin-bottom:2px;">
+                                <div th:style="'width:' + ${pct} + '%;background:' + (${pct.intValue() >= 100} ? '#2ecc71' : (${pct.intValue() >= 50} ? '#f39c12' : '#e74c3c')) + ';height:100%;'"></div>
+                            </div>
+                            <small th:text="${pct} + '%'" style="color:#7f8c8d;font-size:11px;">0%</small>
+                        </div>
+                    </td>
+                    <td>
+                        <a th:href="@{/donors/{id}(id=${donor.id})}" class="btn btn-primary btn-sm">عرض</a>
+                        <a th:href="@{/api/reports/donor/{id}/payments(id=${donor.id})}"
+                           class="btn btn-success btn-sm" target="_blank">PDF</a>
                     </td>
                 </tr>
                 </tbody>
