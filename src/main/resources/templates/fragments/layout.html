@@ -308,7 +308,9 @@
             <li><a href="/dashboard"      th:classappend="${activePage == 'dashboard'} ? 'active'">لوحة التحكم</a></li>
             <li><a href="/branches"       th:classappend="${activePage == 'branches'}  ? 'active'">الفروع</a></li>
             <li><a href="/classes"        th:classappend="${activePage == 'classes'}   ? 'active'">الفصول</a></li>
-            <li><a href="/donors"         th:classappend="${activePage == 'donors'}    ? 'active'">المتبرعون</a></li>
+            <li><a href="/donors"         th:classappend="${activePage == 'donors'}     ? 'active'">المتبرعون</a></li>
+            <li><a href="/retards"        th:classappend="${activePage == 'retards'}    ? 'active'" style="color:var(--danger);">المتأخرون</a></li>
+            <li><a href="/projection"     th:classappend="${activePage == 'projection'} ? 'active'">التوقعات</a></li>
             <li><a href="/rapport-mensuel" th:classappend="${activePage == 'rapport'}  ? 'active'">التقرير الشهري</a></li>
         </ul>
     </nav>

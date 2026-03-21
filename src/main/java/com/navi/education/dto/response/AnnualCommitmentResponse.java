@@ -27,4 +27,5 @@ public class AnnualCommitmentResponse {
     private BigDecimal totalPaid;
     private BigDecimal remainingBalance;
     private Boolean fullyPaid;
+    private LocalDate lastPaymentDate;
 }

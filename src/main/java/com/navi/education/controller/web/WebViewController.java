@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Controller
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class WebViewController {
     private final PaymentService paymentService;
     private final DashboardService dashboardService;
     private final MonthlyReportService monthlyReportService;
+    private final ProjectionService projectionService;
 
     @GetMapping("/")
     public String index() {
@@ -130,6 +132,26 @@ public class WebViewController {
         model.addAttribute("currentDate", refDate.toString());
         model.addAttribute("activePage", "dashboard");
         return "dashboard";
+    }
+
+    @GetMapping("/retards")
+    public String retards(Model model) {
+        var unpaid = commitmentService.getAllUnpaidCommitments();
+        var totalRemaining = unpaid.stream()
+                .map(c -> c.getRemainingBalance())
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+        model.addAttribute("commitments", unpaid);
+        model.addAttribute("totalRemaining", totalRemaining);
+        model.addAttribute("today", LocalDate.now());
+        model.addAttribute("activePage", "retards");
+        return "retards";
+    }
+
+    @GetMapping("/projection")
+    public String projection(Model model) {
+        model.addAttribute("months", projectionService.getProjection());
+        model.addAttribute("activePage", "projection");
+        return "projection";
     }
 
     private LocalDate parseDate(String dateStr) {
