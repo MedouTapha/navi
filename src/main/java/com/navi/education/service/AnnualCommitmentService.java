@@ -131,6 +131,7 @@ public class AnnualCommitmentService {
                 .donorName(commitment.getDonor().getFullName())
                 .classId(commitment.getEducationClass().getId())
                 .className(commitment.getEducationClass().getNameFr())
+                .branchName(commitment.getEducationClass().getBranch().getNameAr())
                 .annualAmount(commitment.getAnnualAmount())
                 .commitmentDate(commitment.getCommitmentDate())
                 .financialYear(commitment.getFinancialYear())

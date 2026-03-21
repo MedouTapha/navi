@@ -37,31 +37,55 @@
     </div>
 
     <div class="card">
-        <h3 class="card-header">📋 Engagements</h3>
+        <h3 class="card-header">📋 الالتزامات</h3>
         <table class="table">
             <thead>
             <tr>
-                <th>Classe</th>
+                <th>الفرع</th>
+                <th>الفصل</th>
                 <th>السنة المالية</th>
-                <th>Montant Engagé</th>
-                <th>Montant Payé</th>
-                <th>Solde Restant</th>
-                <th>Statut</th>
+                <th>الالتزام السنوي</th>
+                <th>المدفوع</th>
+                <th>المتبقي</th>
+                <th style="min-width:130px;">التقدم</th>
+                <th>الحالة</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="commitment : ${commitments}">
+                <td style="font-weight:600;" th:text="${commitment.branchName}">Branche</td>
                 <td th:text="${commitment.className}">Classe</td>
-                <td th:text="${commitment.financialYear}">2024</td>
-                <td dir="ltr" th:text="${#numbers.formatDecimal(commitment.annualAmount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
-                <td dir="ltr" style="color: #27ae60; font-weight: 600;" th:text="${#numbers.formatDecimal(commitment.totalPaid, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
-                <td dir="ltr" style="color: #e74c3c; font-weight: 600;" th:text="${#numbers.formatDecimal(commitment.remainingBalance, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
+                <td th:text="${commitment.financialYear}">2025</td>
+                <td dir="ltr" th:text="${#numbers.formatDecimal(commitment.annualAmount, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                <td dir="ltr" style="color:#27ae60;font-weight:600;"
+                    th:text="${#numbers.formatDecimal(commitment.totalPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                <td dir="ltr"
+                    th:style="${commitment.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'color:#e74c3c;font-weight:600;' : 'color:#27ae60;font-weight:600;'"
+                    th:text="${commitment.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${#numbers.formatDecimal(commitment.remainingBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU' : '✓ مكتمل'">0 MRU</td>
                 <td>
-                    <span th:if="${commitment.fullyPaid}" class="badge badge-success">✓ Payé</span>
-                    <span th:unless="${commitment.fullyPaid}" class="badge badge-warning">En cours</span>
+                    <div th:with="pct=${commitment.annualAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? commitment.totalPaid.multiply(T(java.math.BigDecimal).valueOf(100)).divide(commitment.annualAmount, 0, T(java.math.RoundingMode).HALF_UP).min(T(java.math.BigDecimal).valueOf(100)) : T(java.math.BigDecimal).ZERO}">
+                        <div style="background:#ecf0f1;border-radius:4px;height:8px;overflow:hidden;margin-bottom:2px;">
+                            <div th:style="'width:' + ${pct} + '%;background:' + (${pct.intValue() >= 100} ? '#2ecc71' : (${pct.intValue() >= 50} ? '#f39c12' : '#e74c3c')) + ';height:100%;'"
+                                 style="transition:width .3s;"></div>
+                        </div>
+                        <small th:text="${pct} + '%'" style="color:#7f8c8d;font-size:11px;">0%</small>
+                    </div>
+                </td>
+                <td>
+                    <span th:if="${commitment.fullyPaid}" class="badge badge-success">✓ مكتمل</span>
+                    <span th:unless="${commitment.fullyPaid}" class="badge badge-warning">جاري</span>
                 </td>
             </tr>
             </tbody>
+            <tfoot th:if="${not #lists.isEmpty(commitments)}">
+            <tr style="font-weight:700;background:#f8f9fa;border-top:2px solid #dee2e6;">
+                <td colspan="3" style="text-align:right;">الإجمالي</td>
+                <td dir="ltr" th:text="${#numbers.formatDecimal(donor.totalCommitments, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                <td dir="ltr" style="color:#27ae60;" th:text="${#numbers.formatDecimal(donor.totalPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                <td dir="ltr" style="color:#e74c3c;" th:text="${#numbers.formatDecimal(donor.remainingBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                <td colspan="2"></td>
+            </tr>
+            </tfoot>
         </table>
     </div>
 

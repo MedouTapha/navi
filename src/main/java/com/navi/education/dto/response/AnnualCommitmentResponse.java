@@ -18,6 +18,7 @@ public class AnnualCommitmentResponse {
     private String donorName;
     private Long classId;
     private String className;
+    private String branchName;
     private BigDecimal annualAmount;
     private LocalDate commitmentDate;
     private Integer financialYear;
