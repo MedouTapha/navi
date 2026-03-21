@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -17,14 +18,21 @@ public class DashboardBranchSummary {
     private BranchType type;
     private String nameAr;
 
-    // Dépenses annuelles
-    private BigDecimal annualFixedExpenses;   // المصروفات الثابتة السنوية
-    private BigDecimal annualExtraExpenses;   // المصروفات الإضافية السنوية
+    // Dépenses
+    private BigDecimal annualFixedExpenses;     // المصروفات الثابتة
+    private BigDecimal annualExtraExpenses;     // المصروفات الإضافية
+    private BigDecimal totalExpenses;           // إجمالي المصروفات
 
-    // Donations annuelles
-    private BigDecimal annualDonationsPaid;   // التبرعات المدفوعة السنوية
-    private BigDecimal annualDonationsLate;   // التبرعات المتأخرة السنوية
+    // Donations
+    private BigDecimal totalCommittedDonations; // إجمالي التعهدات
+    private BigDecimal annualDonationsPaid;     // المدفوع من التعهدات
+    private BigDecimal annualDonationsLate;     // المتأخر من التعهدات
+    private BigDecimal totalExtraDonations;     // التبرعات الإضافية
+    private BigDecimal totalReceived;           // إجمالي المستلم (paid + extra)
 
-    // Solde de la branche
-    private BigDecimal branchBalance;         // رصيد الفرع
+    // Bilan
+    private BigDecimal branchBalance;           // رصيد الفرع (received - expenses)
+
+    // Détail par classe
+    private List<ClassDashboardSummary> classes;
 }

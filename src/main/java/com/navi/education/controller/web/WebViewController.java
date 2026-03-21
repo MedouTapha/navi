@@ -36,9 +36,12 @@ public class WebViewController {
     }
 
     @GetMapping("/branches/{id}")
-    public String viewBranch(@PathVariable Long id, Model model) {
-        model.addAttribute("branch", branchService.getBranchFinancialSummary(id));
-        model.addAttribute("classes", classService.getClassesByBranch(id));
+    public String viewBranch(@PathVariable Long id,
+                             @RequestParam(required = false) String date,
+                             Model model) {
+        LocalDate refDate = parseDate(date);
+        model.addAttribute("branchSummary", dashboardService.getBranchClassSummaries(id, refDate));
+        model.addAttribute("currentDate", refDate.toString());
         model.addAttribute("activePage", "branches");
         return "branches/view";
     }
@@ -120,14 +123,21 @@ public class WebViewController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(@RequestParam(required = false) Integer year, Model model) {
-        // Si aucune année n'est spécifiée, utiliser l'année courante
-        if (year == null) {
-            year = java.time.LocalDate.now().getYear();
-        }
-
-        model.addAttribute("dashboard", dashboardService.getDashboardSummary(year));
+    public String dashboard(@RequestParam(required = false) String date, Model model) {
+        LocalDate refDate = parseDate(date);
+        model.addAttribute("dashboard", dashboardService.getDashboardSummary(refDate));
+        model.addAttribute("currentDate", refDate.toString());
         model.addAttribute("activePage", "dashboard");
         return "dashboard";
+    }
+
+    private LocalDate parseDate(String dateStr) {
+        if (dateStr != null && !dateStr.isBlank()) {
+            try {
+                return LocalDate.parse(dateStr);
+            } catch (Exception ignored) {
+            }
+        }
+        return LocalDate.now();
     }
 }
