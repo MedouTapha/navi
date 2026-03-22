@@ -20,8 +20,8 @@ public class ReportController {
         byte[] report = reportService.generateDonorPaymentReport(donorId);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_HTML);
-        headers.setContentDispositionFormData("inline", "donor-report-" + donorId + ".html");
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "rapport-donateur-" + donorId + ".pdf");
 
         return ResponseEntity.ok()
                 .headers(headers)

@@ -1,76 +1,63 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Formulaire Classe')}"></head>
+<head th:replace="~{fragments/layout :: head('نموذج الفصل')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <div class="container">
     <div class="card">
-        <h2 class="card-header" th:text="${class != null} ? 'Modifier la Classe' : 'Nouvelle Classe'">Formulaire Classe</h2>
+        <h2 class="card-header" th:text="${class != null} ? 'تعديل الفصل' : 'فصل جديد'">نموذج الفصل</h2>
 
-        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-            <p style="margin: 0;">⚠️ Utilisez l'API REST pour créer/modifier une classe via <code>/api/classes</code></p>
-            <p style="margin: 5px 0 0 0;">Cette page affiche uniquement le formulaire pour référence.</p>
-        </div>
+        <form th:action="${class != null} ? @{/classes/{id}/edit(id=${class.id})} : @{/classes/new}"
+              method="post">
 
-        <form id="classForm">
             <div class="form-group">
-                <label for="nameFr">Nom en Français *</label>
-                <input type="text" class="form-control" id="nameFr" name="nameFr" required
-                       th:value="${class != null} ? ${class.nameFr} : ''">
+                <label>الاسم بالعربية *</label>
+                <input type="text" class="form-control" name="nameAr" required
+                       th:value="${class != null} ? ${class.nameAr} : ''" placeholder="مثال: فصل التجويد" />
             </div>
 
             <div class="form-group">
-                <label for="nameAr">Nom en Arabe *</label>
-                <input type="text" class="form-control" id="nameAr" name="nameAr" required
-                       th:value="${class != null} ? ${class.nameAr} : ''">
+                <label>الاسم بالفرنسية</label>
+                <input type="text" class="form-control" name="nameFr"
+                       th:value="${class != null} ? ${class.nameFr} : ''" placeholder="Ex: Classe Tajwid" />
             </div>
 
             <div class="form-group">
-                <label for="branchId">Branche *</label>
-                <select class="form-control" id="branchId" name="branchId" required>
-                    <option value="">Sélectionnez une branche</option>
+                <label>الفرع *</label>
+                <select class="form-control" name="branchId" required>
+                    <option value="">-- اختر الفرع --</option>
                     <option th:each="branch : ${branches}"
                             th:value="${branch.id}"
-                            th:text="${branch.nameFr}"
-                            th:selected="${class != null and class.branchId == branch.id}">
-                        Branche
-                    </option>
+                            th:text="${branch.nameAr}"
+                            th:selected="${class != null and class.branchId == branch.id}">الفرع</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="classType">Type de Classe *</label>
-                <select class="form-control" id="classType" name="classType" required>
-                    <option value="">Sélectionnez un type</option>
-                    <option value="RECITATION" th:selected="${class != null and class.classType.name() == 'RECITATION'}">Récitation</option>
-                    <option value="PEDAGOGICAL" th:selected="${class != null and class.classType.name() == 'PEDAGOGICAL'}">Pédagogique</option>
+                <label>نوع الفصل *</label>
+                <select class="form-control" name="classType" required>
+                    <option value="">-- اختر النوع --</option>
+                    <option value="RECITATION" th:selected="${class != null and class.classType.name() == 'RECITATION'}">تلاوة</option>
+                    <option value="PEDAGOGICAL" th:selected="${class != null and class.classType.name() == 'PEDAGOGICAL'}">تربوي</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="monthlyFixedAmount">Montant Mensuel Fixe (MRU) *</label>
-                <input type="number" step="0.01" class="form-control" id="monthlyFixedAmount" name="monthlyFixedAmount" required
-                       th:value="${class != null} ? ${class.monthlyFixedAmount} : ''">
+                <label>الراتب الشهري الثابت (MRU) *</label>
+                <input type="number" step="1" class="form-control" name="monthlyFixedAmount" required
+                       th:value="${class != null} ? ${class.monthlyFixedAmount} : ''" placeholder="0" />
             </div>
 
             <div class="form-group">
-                <label for="startDate">Date de Début *</label>
-                <input type="date" class="form-control" id="startDate" name="startDate" required
-                       th:value="${class != null} ? ${class.startDate} : ''">
+                <label>تاريخ البداية *</label>
+                <input type="date" class="form-control" name="startDate" required
+                       th:value="${class != null} ? ${class.startDate} : ''" />
             </div>
 
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="3"
-                          th:text="${class != null} ? ${class.description} : ''"></textarea>
-            </div>
-
-            <div style="margin-top: 20px;">
-                <button type="button" class="btn btn-primary" onclick="alert('Utilisez l\'API REST pour soumettre le formulaire')">
-                    Enregistrer
-                </button>
-                <a href="/classes" class="btn btn-secondary">Annuler</a>
+            <div style="margin-top:24px; display:flex; gap:10px;">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="/classes" class="btn btn-secondary">إلغاء</a>
             </div>
         </form>
     </div>

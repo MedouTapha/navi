@@ -7,12 +7,13 @@
 <div class="container">
 
     <!-- اختيار الشهر والسنة -->
-    <div class="card" style="margin-bottom: 20px;">
-        <h3 class="card-header">📅 اختر الشهر</h3>
-        <form method="get" action="/rapport-mensuel" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
-            <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 120px;">
+    <div class="card" style="margin-bottom:20px;">
+        <h3 class="card-header">اختر الشهر</h3>
+        <form method="get" action="/rapport-mensuel"
+              style="display:flex; gap:15px; align-items:flex-end; flex-wrap:wrap;">
+            <div class="form-group" style="margin-bottom:0; flex:1; min-width:120px;">
                 <label>الشهر</label>
-                <select name="month" class="form-control" th:value="${currentMonth}">
+                <select name="month" class="form-control">
                     <option value="1"  th:selected="${currentMonth == 1}">يناير</option>
                     <option value="2"  th:selected="${currentMonth == 2}">فبراير</option>
                     <option value="3"  th:selected="${currentMonth == 3}">مارس</option>
@@ -27,21 +28,20 @@
                     <option value="12" th:selected="${currentMonth == 12}">ديسمبر</option>
                 </select>
             </div>
-            <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 100px;">
+            <div class="form-group" style="margin-bottom:0; flex:1; min-width:100px;">
                 <label>السنة</label>
                 <input type="number" name="year" class="form-control"
                        th:value="${currentYear}" min="2023" max="2030"/>
             </div>
             <button type="submit" class="btn btn-primary">عرض التقرير</button>
-            <a th:href="@{/rapport-mensuel(year=${currentYear},month=${currentMonth})}"
-               class="btn btn-secondary" onclick="window.print(); return false;">🖨️ طباعة</a>
+            <button type="button" class="btn btn-secondary" onclick="window.print()">طباعة</button>
         </form>
     </div>
 
     <!-- رأس التقرير -->
-    <div class="card report-header" style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-        <h2 style="margin-bottom: 8px;">معهد الإمام نافع لتعليم القرآن الكريم وعلومه</h2>
-        <h3 style="font-weight: normal;">
+    <div class="card report-header">
+        <h2>معهد الإمام نافع لتعليم القرآن الكريم وعلومه</h2>
+        <h3 style="font-weight:normal; margin-top:8px;">
             التقرير المالي لشهر:
             <strong th:text="${report.monthNameAr}">شهر</strong> /
             <strong th:text="${report.year}">2026</strong>
@@ -49,17 +49,14 @@
     </div>
 
     <!-- تقرير الفروع -->
-    <div th:if="${report.branches.isEmpty()}" class="card" style="text-align: center; color: #6c757d; padding: 40px;">
+    <div th:if="${report.branches.isEmpty()}" class="card"
+         style="text-align:center; color:var(--text-muted); padding:40px;">
         لا توجد مصروفات مسجلة لهذا الشهر
     </div>
 
     <div th:each="branch : ${report.branches}" class="card branch-block">
-        <!-- اسم الفرع -->
-        <div class="branch-title">
-            <strong th:text="${branch.branchNameAr}">الفرع</strong>
-        </div>
+        <div class="branch-title" th:text="${branch.branchNameAr}">الفرع</div>
 
-        <!-- سطور المصروفات -->
         <table class="table report-table">
             <tbody>
             <tr th:each="line : ${branch.lines}"
@@ -82,11 +79,11 @@
 
     <!-- الإجمالي العام -->
     <div class="card" th:if="${!report.branches.isEmpty()}"
-         style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); border: 2px solid #dc3545; text-align: center; padding: 20px;">
-        <h3 style="color: #721c24; margin-bottom: 10px;">الإجمالي العام لشهر
-            <span th:text="${report.monthNameAr}">شهر</span>
+         style="background:var(--danger-light); border:2px solid var(--danger); text-align:center; padding:20px;">
+        <h3 style="color:var(--danger); margin-bottom:10px;">
+            الإجمالي العام لشهر <span th:text="${report.monthNameAr}">شهر</span>
         </h3>
-        <div style="font-size: 28px; font-weight: bold; color: #721c24;" dir="ltr"
+        <div style="font-size:28px; font-weight:bold; color:var(--danger);" dir="ltr"
              th:text="${#numbers.formatDecimal(report.grandTotal, 0, 'COMMA', 0, 'POINT')} + ' MRU'">
             0 MRU
         </div>
@@ -96,41 +93,36 @@
 
 <style>
 .report-header {
+    text-align: center;
+    background: var(--primary);
+    color: white;
     padding: 25px;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    border-top-color: var(--primary-dark);
 }
 
 .branch-block {
-    border-right: 4px solid #667eea;
+    border-right: 4px solid var(--primary);
     margin-bottom: 15px;
     padding: 15px 20px;
 }
 
 .branch-title {
-    font-size: 18px;
-    color: #4a4a8a;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--primary);
     padding-bottom: 10px;
     margin-bottom: 10px;
-    border-bottom: 1px solid #e1e8ed;
+    border-bottom: 1px solid var(--border);
 }
 
-.report-table {
-    min-width: unset;
-}
+.report-table { min-width: unset; }
+.report-table td { padding: 8px 12px; font-size: 15px; }
 
-.report-table td {
-    padding: 8px 12px;
-    font-size: 15px;
-}
-
-.fixed-line td {
-    background: #f8f9fa;
-}
+.fixed-line td { background: var(--bg); }
 
 .extra-line td {
-    background: #fff8e1;
-    color: #856404;
+    background: var(--accent-light);
+    color: var(--accent);
     font-style: italic;
 }
 
@@ -141,9 +133,9 @@
 }
 
 .total-row td {
-    background: #e8f4f8 !important;
-    border-top: 2px solid #17a2b8;
-    color: #0c5460;
+    background: var(--primary-light) !important;
+    border-top: 2px solid var(--primary);
+    color: var(--primary-dark);
     font-size: 16px;
 }
 

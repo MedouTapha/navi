@@ -1,122 +1,261 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Détails de la Classe')}"></head>
+<head th:replace="~{fragments/layout :: head('تفاصيل الفصل')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <div class="container">
+
+    <!-- رأس الفصل -->
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
             <div>
-                <h2 style="margin: 0;" th:text="${class.nameFr}">Nom de la classe</h2>
-                <p style="color: #7f8c8d; margin: 5px 0;" th:text="${class.nameAr}">Arabic Name</p>
+                <h2 style="margin:0;" th:text="${class.nameAr}">اسم الفصل</h2>
+                <p style="color:var(--text-muted); margin:5px 0;" th:text="${class.nameFr}">French Name</p>
             </div>
-            <a th:href="@{/classes/{id}/edit(id=${class.id})}" class="btn btn-primary">Modifier</a>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <a th:href="@{/classes/{id}/edit(id=${class.id})}" class="btn btn-primary">تعديل</a>
+                <a th:href="@{/branches/{id}(id=${class.branchId})}" class="btn btn-secondary">الفرع</a>
+            </div>
         </div>
 
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 20px;">
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom:20px;">
             <div>
-                <strong>Branche:</strong>
+                <strong>الفرع:</strong>
                 <p th:text="${class.branchName}">Branche</p>
             </div>
             <div>
-                <strong>Type:</strong>
+                <strong>النوع:</strong>
                 <p><span class="badge badge-info" th:text="${class.classType.frenchName}">Type</span></p>
             </div>
             <div>
-                <strong>Montant Mensuel:</strong>
-                <p dir="ltr" th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</p>
+                <strong>الراتب الشهري:</strong>
+                <p dir="ltr" style="font-weight:600; color:var(--accent);"
+                   th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</p>
             </div>
             <div>
-                <strong>السنة المالية:</strong>
-                <p th:text="${class.currentFinancialYear}">2024</p>
+                <strong>السنة المالية الحالية:</strong>
+                <p><span class="badge badge-success" th:text="${class.currentFinancialYear}">2025</span></p>
             </div>
             <div>
-                <strong>Date de début:</strong>
-                <p th:text="${#temporals.format(class.startDate, 'dd/MM/yyyy')}">01/01/2024</p>
+                <strong>تاريخ البداية:</strong>
+                <p th:text="${#temporals.format(class.startDate, 'dd/MM/yyyy')}">-</p>
             </div>
             <div>
-                <strong>Statut:</strong>
+                <strong>الحالة:</strong>
                 <p>
-                    <span th:if="${class.active}" class="badge badge-success">Active</span>
-                    <span th:unless="${class.active}" class="badge badge-warning">Inactive</span>
+                    <span th:if="${class.active}"    class="badge badge-success">نشط</span>
+                    <span th:unless="${class.active}" class="badge badge-warning">غير نشط</span>
                 </p>
             </div>
         </div>
-    </div>
 
-    <div class="card">
-        <h3 class="card-header">💰 Statistiques Financières</h3>
+        <!-- ملخص مالي -->
         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-            <div class="stats-card">
-                <h3>Total Dépenses</h3>
-                <div class="value" dir="ltr" th:text="${#numbers.formatDecimal(class.totalExpenses, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</div>
+            <div class="stats-card" style="background:var(--accent);">
+                <h3>إجمالي المصروفات</h3>
+                <div class="value" dir="ltr"
+                     th:text="${#numbers.formatDecimal(class.totalExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</div>
             </div>
-            <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                <h3>Total Donations</h3>
-                <div class="value" dir="ltr" th:text="${#numbers.formatDecimal(class.totalDonations, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</div>
+            <div class="stats-card">
+                <h3>إجمالي التبرعات</h3>
+                <div class="value" dir="ltr"
+                     th:text="${#numbers.formatDecimal(class.totalDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</div>
             </div>
         </div>
     </div>
 
+    <!-- الالتزامات -->
     <div class="card">
-        <h3 class="card-header">📋 Dépenses</h3>
-        <table class="table">
+        <h3 class="card-header">الالتزامات</h3>
+        <div th:if="${#lists.isEmpty(commitments)}" style="color:var(--text-muted); padding:20px; text-align:center;">
+            لا توجد التزامات مسجلة لهذا الفصل
+        </div>
+        <table class="table" th:unless="${#lists.isEmpty(commitments)}">
             <thead>
             <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Montant</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="expense : ${expenses}">
-                <td th:text="${#temporals.format(expense.expenseDate, 'dd/MM/yyyy')}">Date</td>
-                <td>
-                    <span th:if="${expense.expenseType.name() == 'FIXED'}" class="badge badge-info">Fixe</span>
-                    <span th:if="${expense.expenseType.name() == 'EXTRA'}" class="badge badge-warning">Extra</span>
-                </td>
-                <td dir="ltr" th:text="${#numbers.formatDecimal(expense.amount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
-                <td th:text="${expense.description}">Description</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="card">
-        <h3 class="card-header">🤝 Engagements</h3>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Donateur</th>
+                <th>المتبرع</th>
                 <th>السنة المالية</th>
-                <th>Montant Engagé</th>
-                <th>Montant Payé</th>
-                <th>Solde Restant</th>
-                <th>Statut</th>
+                <th>الالتزام</th>
+                <th>المدفوع</th>
+                <th>المتبقي</th>
+                <th style="min-width:130px;">التقدم</th>
+                <th>الحالة</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="commitment : ${commitments}">
-                <td th:text="${commitment.donorName}">Donateur</td>
-                <td th:text="${commitment.financialYear}">2024</td>
-                <td dir="ltr" th:text="${#numbers.formatDecimal(commitment.annualAmount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
-                <td dir="ltr" th:text="${#numbers.formatDecimal(commitment.totalPaid, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
-                <td dir="ltr" th:text="${#numbers.formatDecimal(commitment.remainingBalance, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
+            <tr th:each="c : ${commitments}">
                 <td>
-                    <span th:if="${commitment.fullyPaid}" class="badge badge-success">Payé</span>
-                    <span th:unless="${commitment.fullyPaid}" class="badge badge-warning">En cours</span>
+                    <a th:href="@{/donors/{id}(id=${c.donorId})}"
+                       th:text="${c.donorName}" style="color:var(--primary); font-weight:600;">-</a>
+                </td>
+                <td th:text="${c.financialYear}">2025</td>
+                <td dir="ltr" th:text="${#numbers.formatDecimal(c.annualAmount, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                <td dir="ltr" style="color:var(--primary); font-weight:600;"
+                    th:text="${#numbers.formatDecimal(c.totalPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                <td dir="ltr"
+                    th:style="${c.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? 'color:var(--danger);font-weight:600;' : 'color:var(--primary);'"
+                    th:text="${c.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${#numbers.formatDecimal(c.remainingBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU' : '✓'">0 MRU</td>
+                <td>
+                    <div th:with="pct=${c.annualAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? c.totalPaid.multiply(T(java.math.BigDecimal).valueOf(100)).divide(c.annualAmount, 0, T(java.math.RoundingMode).HALF_UP).min(T(java.math.BigDecimal).valueOf(100)) : T(java.math.BigDecimal).ZERO}">
+                        <div style="background:#d0e8d8;border-radius:4px;height:8px;overflow:hidden;margin-bottom:2px;">
+                            <div th:style="'width:' + ${pct} + '%;background:' + (${pct.intValue() >= 100} ? '#1B6B3A' : (${pct.intValue() >= 50} ? '#B8860B' : '#C0392B')) + ';height:100%;'"></div>
+                        </div>
+                        <small th:text="${pct} + '%'" style="color:var(--text-muted);font-size:11px;">0%</small>
+                    </div>
+                </td>
+                <td>
+                    <span th:if="${c.fullyPaid}"    class="badge badge-success">✓ مكتمل</span>
+                    <span th:unless="${c.fullyPaid}" class="badge badge-warning">جاري</span>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
 
-    <div style="margin-top: 20px;">
-        <a href="/classes" class="btn btn-secondary">Retour</a>
+    <!-- المصروفات -->
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 class="card-header" style="margin:0;">المصروفات</h3>
+            <button class="btn btn-accent"
+                    onclick="document.getElementById('expenseModal').style.display='flex'">
+                + إضافة مصروفة إضافية
+            </button>
+        </div>
+        <div th:if="${#lists.isEmpty(expenses)}" style="color:var(--text-muted); padding:20px; text-align:center;">
+            لا توجد مصروفات مسجلة
+        </div>
+        <table class="table" th:unless="${#lists.isEmpty(expenses)}">
+            <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>السنة المالية</th>
+                <th>النوع</th>
+                <th>المبلغ</th>
+                <th>البيان</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${expenses}"
+                th:class="${e.expenseType.name() == 'EXTRA'} ? 'extra-row' : ''">
+                <td th:text="${#temporals.format(e.expenseDate, 'dd/MM/yyyy')}">-</td>
+                <td><small th:text="${e.financialYear}" style="color:var(--text-muted);">-</small></td>
+                <td>
+                    <span th:if="${e.expenseType.name() == 'FIXED'}" class="badge badge-info">راتب</span>
+                    <span th:if="${e.expenseType.name() == 'EXTRA'}" class="badge badge-warning">إضافي</span>
+                </td>
+                <td dir="ltr" style="font-weight:600;"
+                    th:text="${#numbers.formatDecimal(e.amount, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                <td th:text="${e.description}">-</td>
+                <td>
+                    <button th:if="${e.expenseType.name() == 'EXTRA'}"
+                            class="btn btn-danger btn-sm"
+                            th:onclick="|deleteExpense(${e.id})|">حذف</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- المدفوعات المستلمة -->
+    <div class="card" th:if="${not #lists.isEmpty(payments)}">
+        <h3 class="card-header">المدفوعات المستلمة</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>المتبرع</th>
+                <th>المبلغ</th>
+                <th>وسيلة الدفع</th>
+                <th>رقم الوصل</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${payments}">
+                <td th:text="${#temporals.format(p.paymentDate, 'dd/MM/yyyy')}">-</td>
+                <td th:text="${p.donorName}">-</td>
+                <td dir="ltr" style="color:var(--primary); font-weight:600;"
+                    th:text="${#numbers.formatDecimal(p.amount, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                <td th:text="${p.paymentMethod.displayName}">-</td>
+                <td th:text="${p.receiptNumber != null ? p.receiptNumber : '-'}">-</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top:20px;">
+        <a href="/classes" class="btn btn-secondary">قائمة الفصول</a>
     </div>
 </div>
+
+<!-- مودال إضافة مصروفة إضافية -->
+<div id="expenseModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:10px; padding:30px; width:95%; max-width:420px; box-shadow:0 10px 40px rgba(0,0,0,.25); border-top:4px solid var(--accent);">
+        <h3 style="margin-bottom:20px; color:var(--accent);">إضافة مصروفة إضافية</h3>
+        <div class="form-group">
+            <label>المبلغ (MRU)</label>
+            <input type="number" id="expAmount" class="form-control" min="1" placeholder="0" />
+        </div>
+        <div class="form-group">
+            <label>التاريخ</label>
+            <input type="date" id="expDate" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>البيان / الوصف</label>
+            <input type="text" id="expDesc" class="form-control" placeholder="مثال: النقل، صيانة..." />
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+            <button class="btn btn-secondary" onclick="document.getElementById('expenseModal').style.display='none'">إلغاء</button>
+            <button class="btn btn-accent" onclick="submitExpense()">حفظ</button>
+        </div>
+        <p id="expError" style="color:var(--danger); margin-top:10px; display:none;"></p>
+    </div>
+</div>
+
+<style>
+.extra-row td { background:var(--accent-light) !important; }
+</style>
+
+<script th:inline="javascript">
+const CLASS_ID = /*[[${class.id}]]*/ 0;
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('expDate').value = new Date().toISOString().slice(0,10);
+});
+
+function submitExpense() {
+    const amount = parseFloat(document.getElementById('expAmount').value);
+    const date   = document.getElementById('expDate').value;
+    const desc   = document.getElementById('expDesc').value.trim();
+    const err    = document.getElementById('expError');
+
+    if (!amount || amount <= 0) { showErr(err, 'أدخل مبلغاً صحيحاً'); return; }
+    if (!date)   { showErr(err, 'أدخل التاريخ'); return; }
+    if (!desc)   { showErr(err, 'أدخل وصف المصروفة'); return; }
+
+    fetch('/api/expenses/extra', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classId: CLASS_ID, amount, expenseDate: date, description: desc })
+    }).then(r => {
+        if (r.ok || r.status === 201) { location.reload(); }
+        else r.text().then(t => showErr(err, 'خطأ: ' + t));
+    }).catch(() => showErr(err, 'خطأ في الاتصال'));
+}
+
+function deleteExpense(id) {
+    if (!confirm('هل تريد حذف هذه المصروفة الإضافية؟')) return;
+    fetch('/api/expenses/' + id, { method: 'DELETE' })
+        .then(r => {
+            if (r.ok || r.status === 204) { location.reload(); }
+            else r.text().then(t => alert('خطأ: ' + t));
+        })
+        .catch(() => alert('خطأ في الاتصال'));
+}
+
+function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+</script>
 
 </body>
 </html>

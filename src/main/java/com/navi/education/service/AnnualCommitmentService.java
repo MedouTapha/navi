@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -85,6 +87,15 @@ public class AnnualCommitmentService {
     }
 
     @Transactional(readOnly = true)
+    public List<AnnualCommitmentResponse> getAllUnpaidCommitments() {
+        return commitmentRepository.findAll().stream()
+                .filter(c -> !c.isFullyPaid())
+                .map(this::toCommitmentResponse)
+                .sorted(Comparator.comparing(AnnualCommitmentResponse::getRemainingBalance).reversed())
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<AnnualCommitmentResponse> getCommitmentsByDonor(Long donorId) {
         return commitmentRepository.findByDonorId(donorId).stream()
                 .map(this::toCommitmentResponse)
@@ -125,12 +136,18 @@ public class AnnualCommitmentService {
                 .map(payment -> payment.getAmount())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        LocalDate lastPaymentDate = commitment.getPayments().stream()
+                .map(p -> p.getPaymentDate())
+                .max(Comparator.naturalOrder())
+                .orElse(null);
+
         return AnnualCommitmentResponse.builder()
                 .id(commitment.getId())
                 .donorId(commitment.getDonor().getId())
                 .donorName(commitment.getDonor().getFullName())
                 .classId(commitment.getEducationClass().getId())
                 .className(commitment.getEducationClass().getNameFr())
+                .branchName(commitment.getEducationClass().getBranch().getNameAr())
                 .annualAmount(commitment.getAnnualAmount())
                 .commitmentDate(commitment.getCommitmentDate())
                 .financialYear(commitment.getFinancialYear())
@@ -139,6 +156,7 @@ public class AnnualCommitmentService {
                 .totalPaid(totalPaid)
                 .remainingBalance(commitment.getAnnualAmount().subtract(totalPaid))
                 .fullyPaid(commitment.isFullyPaid())
+                .lastPaymentDate(lastPaymentDate)
                 .build();
     }
 }

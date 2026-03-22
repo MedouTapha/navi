@@ -1,46 +1,47 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Liste des Classes')}"></head>
+<head th:replace="~{fragments/layout :: head('قائمة الفصول')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <div class="container">
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 class="card-header" style="margin: 0;">📚 Liste des Classes</h2>
-            <a href="/classes/new" class="btn btn-primary">+ Nouvelle Classe</a>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 class="card-header" style="margin:0;">📚 قائمة الفصول</h2>
+            <a href="/classes/new" class="btn btn-primary">+ فصل جديد</a>
         </div>
 
-        <div style="overflow-x: auto;">
+        <div style="overflow-x:auto;">
             <table class="table">
                 <thead>
                 <tr>
-                    <th>Nom</th>
-                    <th>Branche</th>
-                    <th>Type</th>
-                    <th>Montant Mensuel</th>
+                    <th>الاسم</th>
+                    <th>الفرع</th>
+                    <th>النوع</th>
+                    <th>الراتب الشهري</th>
                     <th>السنة المالية</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
+                    <th>الحالة</th>
+                    <th>إجراء</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="class : ${classes}">
+                <tr th:each="cls : ${classes}">
                     <td>
-                        <div th:text="${class.nameFr}">Nom FR</div>
-                        <small style="color: #7f8c8d;" th:text="${class.nameAr}">Nom AR</small>
+                        <div style="font-weight:600;" th:text="${cls.nameAr}">-</div>
+                        <small style="color:#7f8c8d;" th:text="${cls.nameFr}">-</small>
                     </td>
-                    <td th:text="${class.branchName}">Branche</td>
-                    <td><span class="badge badge-info" th:text="${class.classType.frenchName}">Type</span></td>
-                    <td dir="ltr" th:text="${#numbers.formatDecimal(class.monthlyFixedAmount, 0, 'COMMA', 1, 'POINT')} + ' MRU'">0.0 MRU</td>
-                    <td th:text="${class.currentFinancialYear}">2024</td>
+                    <td th:text="${cls.branchName}">-</td>
+                    <td><span class="badge badge-info" th:text="${cls.classType.frenchName}">-</span></td>
+                    <td dir="ltr" style="font-weight:600;"
+                        th:text="${#numbers.formatDecimal(cls.monthlyFixedAmount, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                    <td><span class="badge badge-success" th:text="${cls.currentFinancialYear}">-</span></td>
                     <td>
-                        <span th:if="${class.active}" class="badge badge-success">Active</span>
-                        <span th:unless="${class.active}" class="badge badge-warning">Inactive</span>
+                        <span th:if="${cls.active}" class="badge badge-success">نشط</span>
+                        <span th:unless="${cls.active}" class="badge badge-warning">غير نشط</span>
                     </td>
                     <td>
-                        <a th:href="@{/classes/{id}(id=${class.id})}" class="btn btn-primary btn-sm">Voir</a>
-                        <a th:href="@{/classes/{id}/edit(id=${class.id})}" class="btn btn-secondary btn-sm">Modifier</a>
+                        <a th:href="@{/classes/{id}(id=${cls.id})}" class="btn btn-primary btn-sm">عرض</a>
+                        <a th:href="@{/classes/{id}/edit(id=${cls.id})}" class="btn btn-secondary btn-sm">تعديل</a>
                     </td>
                 </tr>
                 </tbody>

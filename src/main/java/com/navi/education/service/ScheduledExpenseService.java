@@ -22,11 +22,8 @@ public class ScheduledExpenseService {
     /**
      * Génère automatiquement les dépenses mensuelles fixes le 1er de chaque mois à 00:01
      * Cron: seconde minute heure jour mois jour_de_semaine
-     *
-     * DÉSACTIVÉ: Le gérant veut suivre les engagements/paiements, pas générer des dépenses automatiques
-     * Pour réactiver, décommenter @Scheduled
      */
-    // @Scheduled(cron = "0 1 0 1 * *") // Exécute le 1er de chaque mois à 00:01
+    @Scheduled(cron = "0 1 0 1 * *") // Exécute le 1er de chaque mois à 00:01
     @Transactional
     public void generateMonthlyExpenses() {
         log.info("Début de la génération automatique des dépenses mensuelles");

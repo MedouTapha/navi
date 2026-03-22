@@ -7,16 +7,15 @@
 <div class="container">
 
     <!-- اختيار التاريخ -->
-    <div class="card" style="margin-bottom: 16px;">
+    <div class="card" style="margin-bottom:16px;">
         <form method="get" action="/dashboard" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
             <div class="form-group" style="margin-bottom:0; flex:1; min-width:180px;">
-                <label>📅 تاريخ الاحتساب</label>
-                <input type="date" name="date" class="form-control"
-                       th:value="${currentDate}" />
+                <label>تاريخ الاحتساب</label>
+                <input type="date" name="date" class="form-control" th:value="${currentDate}" />
             </div>
             <button type="submit" class="btn btn-primary">عرض البيان</button>
         </form>
-        <p style="margin-top:8px; font-size:13px; color:#6c757d;">
+        <p style="margin-top:8px; font-size:13px; color:var(--text-muted);">
             البيان المالي للمؤسسة حتى تاريخ:
             <strong th:text="${dashboard.referenceDate}">-</strong>
             (السنة المالية الحالية لكل فصل على حدة)
@@ -26,26 +25,27 @@
     <!-- الرصيد العام -->
     <div class="balance-block"
          th:style="${dashboard.globalBalance >= 0}
-             ? 'background:#d1ecf1; border:3px solid #17a2b8;'
-             : 'background:#f8d7da; border:3px solid #dc3545;'">
-        <h3 th:style="${dashboard.globalBalance >= 0} ? 'color:#0c5460;' : 'color:#721c24;'">
-            💵 الرصيد العام للمؤسسة
+             ? 'background:var(--primary-light); border:2px solid var(--primary);'
+             : 'background:var(--danger-light);  border:2px solid var(--danger);'">
+        <h3 th:style="${dashboard.globalBalance >= 0} ? 'color:var(--primary-dark);' : 'color:var(--danger);'">
+            الرصيد العام للمؤسسة
         </h3>
         <div class="balance-amount" dir="ltr"
+             th:style="${dashboard.globalBalance >= 0} ? 'color:var(--primary);' : 'color:var(--danger);'"
              th:text="${#numbers.formatDecimal(dashboard.globalBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'">
             0 MRU
         </div>
-        <p style="margin-top:8px; font-size:13px; color:#6c757d;">
-            <span th:if="${dashboard.globalBalance >= 0}">✅ وضع مالي إيجابي</span>
-            <span th:unless="${dashboard.globalBalance >= 0}">⚠️ عجز مالي</span>
+        <p style="margin-top:8px; font-size:13px; color:var(--text-muted);">
+            <span th:if="${dashboard.globalBalance >= 0}">وضع مالي إيجابي</span>
+            <span th:unless="${dashboard.globalBalance >= 0}">عجز مالي</span>
         </p>
     </div>
 
     <!-- ملخص مالي شامل -->
     <div class="financial-grid">
         <!-- المصروفات -->
-        <div class="financial-block" style="background:#fff3cd; border:2px solid #ffc107;">
-            <h4 style="color:#856404;">📉 إجمالي المصروفات</h4>
+        <div class="financial-block" style="background:var(--accent-light); border:2px solid var(--accent);">
+            <h4 style="color:var(--accent);">المصروفات</h4>
             <table style="width:100%; font-size:14px;">
                 <tr>
                     <td>المصروفات الثابتة (رواتب):</td>
@@ -57,17 +57,17 @@
                     <td dir="ltr" style="text-align:left; font-weight:600;"
                         th:text="${#numbers.formatDecimal(dashboard.totalExtraExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                 </tr>
-                <tr style="border-top:2px solid #856404; font-weight:bold;">
+                <tr style="border-top:2px solid var(--accent); font-weight:bold;">
                     <td>الإجمالي:</td>
-                    <td dir="ltr" style="text-align:left; color:#856404; font-size:16px;"
+                    <td dir="ltr" style="text-align:left; color:var(--accent); font-size:16px;"
                         th:text="${#numbers.formatDecimal(dashboard.totalExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                 </tr>
             </table>
         </div>
 
         <!-- التبرعات -->
-        <div class="financial-block" style="background:#d4edda; border:2px solid #28a745;">
-            <h4 style="color:#155724;">💰 إجمالي التبرعات</h4>
+        <div class="financial-block" style="background:var(--primary-light); border:2px solid var(--primary);">
+            <h4 style="color:var(--primary-dark);">التبرعات</h4>
             <table style="width:100%; font-size:14px;">
                 <tr>
                     <td>الالتزامات (المتعهد به):</td>
@@ -76,22 +76,22 @@
                 </tr>
                 <tr>
                     <td>المدفوع من الالتزامات:</td>
-                    <td dir="ltr" style="text-align:left; color:#28a745; font-weight:600;"
+                    <td dir="ltr" style="text-align:left; color:var(--primary); font-weight:600;"
                         th:text="${#numbers.formatDecimal(dashboard.totalDonationsPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                 </tr>
                 <tr>
                     <td>التبرعات الإضافية (هبات):</td>
-                    <td dir="ltr" style="text-align:left; color:#17a2b8; font-weight:600;"
+                    <td dir="ltr" style="text-align:left; color:var(--accent); font-weight:600;"
                         th:text="${#numbers.formatDecimal(dashboard.totalExtraDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                 </tr>
                 <tr>
                     <td>المتأخر من الالتزامات:</td>
-                    <td dir="ltr" style="text-align:left; color:#dc3545; font-weight:600;"
+                    <td dir="ltr" style="text-align:left; color:var(--danger); font-weight:600;"
                         th:text="${#numbers.formatDecimal(dashboard.totalDonationsLate, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                 </tr>
-                <tr style="border-top:2px solid #155724; font-weight:bold;">
+                <tr style="border-top:2px solid var(--primary); font-weight:bold;">
                     <td>إجمالي المستلم:</td>
-                    <td dir="ltr" style="text-align:left; color:#155724; font-size:16px;"
+                    <td dir="ltr" style="text-align:left; color:var(--primary); font-size:16px;"
                         th:text="${#numbers.formatDecimal(dashboard.totalReceived, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                 </tr>
             </table>
@@ -104,26 +104,25 @@
             <h3>عدد الفروع</h3>
             <div class="value" th:text="${dashboard.totalBranches}">0</div>
         </div>
-        <div class="stats-card" style="background:linear-gradient(135deg,#f093fb,#f5576c);">
+        <div class="stats-card" style="background:var(--accent);">
             <h3>عدد الفصول</h3>
             <div class="value" th:text="${dashboard.totalClasses}">0</div>
         </div>
-        <div class="stats-card" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">
+        <div class="stats-card" style="background:var(--primary-dark);">
             <h3>عدد المتبرعين</h3>
             <div class="value" th:text="${dashboard.totalDonors}">0</div>
         </div>
     </div>
 
-    <!-- جدول الفروع مع تفصيل قابل للتوسع -->
+    <!-- جدول الفروع -->
     <div class="card">
-        <h2 class="card-header">🏢 بيان الفروع</h2>
+        <h2 class="card-header">بيان الفروع</h2>
 
-        <div th:if="${dashboard.branches.isEmpty()}" style="text-align:center; color:#6c757d; padding:30px;">
+        <div th:if="${dashboard.branches.isEmpty()}" style="text-align:center; color:var(--text-muted); padding:30px;">
             لا توجد بيانات لهذا التاريخ
         </div>
 
         <div th:each="branch, branchStat : ${dashboard.branches}" class="branch-accordion">
-            <!-- رأس الفرع (قابل للضغط) -->
             <div class="branch-header" th:onclick="|toggleBranch('branch-' + ${branchStat.index})|">
                 <div class="branch-header-name">
                     <span class="toggle-icon" th:id="|icon-branch-${branchStat.index}|">▶</span>
@@ -131,14 +130,14 @@
                 </div>
                 <div class="branch-header-amounts">
                     <span class="amt-label">مصروفات:</span>
-                    <span dir="ltr" class="amt-val text-danger"
+                    <span dir="ltr" class="amt-val text-accent"
                           th:text="${#numbers.formatDecimal(branch.totalExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></span>
                     <span class="amt-label">مستلم:</span>
                     <span dir="ltr" class="amt-val text-success"
                           th:text="${#numbers.formatDecimal(branch.totalReceived, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></span>
                     <span class="amt-label">رصيد:</span>
                     <span dir="ltr"
-                          th:class="${branch.branchBalance >= 0} ? 'amt-val text-info' : 'amt-val text-danger'"
+                          th:class="${branch.branchBalance >= 0} ? 'amt-val text-success' : 'amt-val text-danger'"
                           th:text="${#numbers.formatDecimal(branch.branchBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></span>
                     <a th:href="@{/branches/{id}(id=${branch.id}, date=${currentDate})}"
                        class="btn btn-primary btn-sm" style="margin-right:8px;" onclick="event.stopPropagation()">
@@ -147,7 +146,6 @@
                 </div>
             </div>
 
-            <!-- تفصيل الفصول (مخفي افتراضياً) -->
             <div class="branch-detail" th:id="|branch-${branchStat.index}|" style="display:none;">
                 <div class="table-wrapper">
                     <table class="table class-table">
@@ -173,17 +171,17 @@
                                 th:text="${#numbers.formatDecimal(cls.extraExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                             <td dir="ltr"
                                 th:text="${#numbers.formatDecimal(cls.committedDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
-                            <td dir="ltr" style="color:#28a745; font-weight:600;"
+                            <td dir="ltr" style="color:var(--primary); font-weight:600;"
                                 th:text="${#numbers.formatDecimal(cls.paidDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
-                            <td dir="ltr" style="color:#17a2b8;"
+                            <td dir="ltr" style="color:var(--accent);"
                                 th:text="${#numbers.formatDecimal(cls.extraDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                             <td dir="ltr"
-                                th:style="${cls.balance >= 0} ? 'color:#17a2b8; font-weight:bold;' : 'color:#dc3545; font-weight:bold;'"
+                                th:style="${cls.balance >= 0} ? 'color:var(--primary); font-weight:bold;' : 'color:var(--danger); font-weight:bold;'"
                                 th:text="${#numbers.formatDecimal(cls.balance, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                         </tr>
                         </tbody>
                         <tfoot>
-                        <tr style="background:#f0f4f8; font-weight:bold;">
+                        <tr style="background:var(--primary-light); font-weight:bold;">
                             <td colspan="2">مجموع الفرع</td>
                             <td dir="ltr" th:text="${#numbers.formatDecimal(branch.annualFixedExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                             <td dir="ltr" th:text="${#numbers.formatDecimal(branch.annualExtraExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
@@ -191,7 +189,7 @@
                             <td dir="ltr" th:text="${#numbers.formatDecimal(branch.annualDonationsPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                             <td dir="ltr" th:text="${#numbers.formatDecimal(branch.totalExtraDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                             <td dir="ltr"
-                                th:style="${branch.branchBalance >= 0} ? 'color:#17a2b8;' : 'color:#dc3545;'"
+                                th:style="${branch.branchBalance >= 0} ? 'color:var(--primary);' : 'color:var(--danger);'"
                                 th:text="${#numbers.formatDecimal(branch.branchBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
                         </tr>
                         </tfoot>
@@ -204,7 +202,7 @@
 
 <style>
 .branch-accordion {
-    border: 1px solid #e1e8ed;
+    border: 1px solid var(--border);
     border-radius: 6px;
     margin-bottom: 8px;
     overflow: hidden;
@@ -215,16 +213,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: #f8f9fa;
+    background: var(--primary-light);
     cursor: pointer;
     flex-wrap: wrap;
     gap: 8px;
-    transition: background 0.2s;
+    transition: background .2s;
 }
 
-.branch-header:hover {
-    background: #e9ecef;
-}
+.branch-header:hover { background: #d4ead9; }
 
 .branch-header-name {
     display: flex;
@@ -241,39 +237,21 @@
 }
 
 .toggle-icon {
-    color: #667eea;
+    color: var(--primary);
     font-size: 12px;
-    transition: transform 0.2s;
+    transition: transform .2s;
 }
 
-.amt-label {
-    font-size: 12px;
-    color: #6c757d;
-}
-
-.amt-val {
-    font-size: 13px;
-    font-weight: 600;
-    min-width: 90px;
-}
-
-.text-danger { color: #dc3545 !important; }
-.text-success { color: #28a745 !important; }
-.text-info    { color: #17a2b8 !important; }
+.amt-label { font-size: 12px; color: var(--text-muted); }
+.amt-val   { font-size: 13px; font-weight: 600; min-width: 90px; }
 
 .branch-detail {
-    border-top: 1px solid #e1e8ed;
-    background: white;
+    border-top: 1px solid var(--border);
+    background: var(--white);
 }
 
-.class-table {
-    font-size: 13px;
-    min-width: 700px;
-}
-
-.class-table th, .class-table td {
-    padding: 8px 10px;
-}
+.class-table { font-size: 13px; min-width: 700px; }
+.class-table th, .class-table td { padding: 8px 10px; }
 
 @media (max-width: 768px) {
     .branch-header { flex-direction: column; align-items: flex-start; }
@@ -283,8 +261,8 @@
 
 <script>
 function toggleBranch(id) {
-    const el = document.getElementById(id);
-    const idx = id.split('-')[1];
+    const el   = document.getElementById(id);
+    const idx  = id.split('-')[1];
     const icon = document.getElementById('icon-branch-' + idx);
     if (el.style.display === 'none') {
         el.style.display = 'block';

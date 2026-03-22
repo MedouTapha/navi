@@ -82,16 +82,16 @@ public class EducationClass {
     }
 
     /**
-     * Retourne le début de l'année financière pour une année donnée
+     * Retourne le début de l'année financière pour une année calendaire donnée (ex: 2025)
      */
     public LocalDate getFinancialYearStart(int year) {
-        return startDate.plusYears(year - 1);
+        return startDate.plusYears(year - startDate.getYear());
     }
 
     /**
-     * Retourne la fin de l'année financière pour une année donnée
+     * Retourne la fin de l'année financière pour une année calendaire donnée (ex: 2025)
      */
     public LocalDate getFinancialYearEnd(int year) {
-        return startDate.plusYears(year).minusDays(1);
+        return startDate.plusYears(year - startDate.getYear() + 1).minusDays(1);
     }
 }

@@ -1,54 +1,49 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Formulaire Donateur')}"></head>
+<head th:replace="~{fragments/layout :: head('نموذج المتبرع')}"></head>
 <body>
 <div th:replace="~{fragments/layout :: header}"></div>
 
 <div class="container">
     <div class="card">
-        <h2 class="card-header" th:text="${donor != null} ? 'Modifier le Donateur' : 'Nouveau Donateur'">Formulaire Donateur</h2>
+        <h2 class="card-header" th:text="${donor != null} ? 'تعديل المتبرع' : 'متبرع جديد'">نموذج المتبرع</h2>
 
-        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-            <p style="margin: 0;">⚠️ Utilisez l'API REST pour créer/modifier un donateur via <code>/api/donors</code></p>
-            <p style="margin: 5px 0 0 0;">Cette page affiche uniquement le formulaire pour référence.</p>
-        </div>
+        <form th:action="${donor != null} ? @{/donors/{id}/edit(id=${donor.id})} : @{/donors/new}"
+              method="post">
 
-        <form id="donorForm">
             <div class="form-group">
-                <label for="firstName">Prénom *</label>
-                <input type="text" class="form-control" id="firstName" name="firstName" required
-                       th:value="${donor != null} ? ${donor.firstName} : ''">
+                <label>الاسم الأول *</label>
+                <input type="text" class="form-control" name="firstName" required
+                       th:value="${donor != null} ? ${donor.firstName} : ''" />
             </div>
 
             <div class="form-group">
-                <label for="lastName">Nom *</label>
-                <input type="text" class="form-control" id="lastName" name="lastName" required
-                       th:value="${donor != null} ? ${donor.lastName} : ''">
+                <label>الاسم الأخير *</label>
+                <input type="text" class="form-control" name="lastName" required
+                       th:value="${donor != null} ? ${donor.lastName} : ''" />
             </div>
 
             <div class="form-group">
-                <label for="telephone">Téléphone *</label>
-                <input type="tel" class="form-control" id="telephone" name="telephone" required
-                       th:value="${donor != null} ? ${donor.telephone} : ''">
+                <label>الهاتف *</label>
+                <input type="tel" class="form-control" name="telephone" required
+                       th:value="${donor != null} ? ${donor.telephone} : ''" placeholder="2X XXX XXX" />
             </div>
 
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email"
-                       th:value="${donor != null} ? ${donor.email} : ''">
+                <label>البريد الإلكتروني</label>
+                <input type="email" class="form-control" name="email"
+                       th:value="${donor != null} ? ${donor.email} : ''" />
             </div>
 
             <div class="form-group">
-                <label for="notes">Notes</label>
-                <textarea class="form-control" id="notes" name="notes" rows="3"
+                <label>ملاحظات</label>
+                <textarea class="form-control" name="notes" rows="3"
                           th:text="${donor != null} ? ${donor.notes} : ''"></textarea>
             </div>
 
-            <div style="margin-top: 20px;">
-                <button type="button" class="btn btn-primary" onclick="alert('Utilisez l\'API REST pour soumettre le formulaire')">
-                    Enregistrer
-                </button>
-                <a href="/donors" class="btn btn-secondary">Annuler</a>
+            <div style="margin-top:24px; display:flex; gap:10px;">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="/donors" class="btn btn-secondary">إلغاء</a>
             </div>
         </form>
     </div>

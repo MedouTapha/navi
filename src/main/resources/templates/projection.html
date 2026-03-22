@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('التوقعات المالية')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+
+    <!-- رأس الصفحة -->
+    <div class="card">
+        <h2 class="card-header" style="margin-bottom:4px;">التوقعات المالية — 6 أشهر</h2>
+        <p style="color:var(--text-muted); font-size:13px; margin:0;">
+            توقع التدفق النقدي بناءً على الرواتب الثابتة والمبالغ المتبقية من التعهدات
+        </p>
+    </div>
+
+    <!-- مفتاح الألوان -->
+    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; font-size:13px;">
+        <span style="display:flex;align-items:center;gap:6px;">
+            <span style="width:14px;height:14px;border-radius:3px;background:var(--primary);display:inline-block;"></span>
+            رصيد تراكمي إيجابي
+        </span>
+        <span style="display:flex;align-items:center;gap:6px;">
+            <span style="width:14px;height:14px;border-radius:3px;background:var(--accent);display:inline-block;"></span>
+            رصيد تراكمي منخفض (أقل من 100,000)
+        </span>
+        <span style="display:flex;align-items:center;gap:6px;">
+            <span style="width:14px;height:14px;border-radius:3px;background:var(--danger);display:inline-block;"></span>
+            عجز محتمل
+        </span>
+    </div>
+
+    <!-- بطاقات الأشهر -->
+    <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+        <div th:each="m, stat : ${months}"
+             class="card"
+             th:style="${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0}
+                ? 'border-top-color:var(--danger);'
+                : (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).valueOf(100000)) < 0}
+                    ? 'border-top-color:var(--accent);'
+                    : 'border-top-color:var(--primary);')">
+
+            <!-- اسم الشهر -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="margin:0; font-size:18px;"
+                    th:text="${m.monthNameAr} + ' ' + ${m.year}">الشهر</h3>
+                <span class="badge"
+                      th:style="${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0}
+                          ? 'background:var(--danger-light);color:var(--danger);border:1px solid var(--danger);'
+                          : (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).valueOf(100000)) < 0}
+                              ? 'background:var(--accent-light);color:var(--accent);border:1px solid var(--accent);'
+                              : 'background:var(--primary-light);color:var(--primary);border:1px solid var(--primary);')"
+                      th:text="${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0}
+                          ? 'عجز محتمل'
+                          : (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).valueOf(100000)) < 0}
+                              ? 'تحت المراقبة'
+                              : 'مريح')">
+                    حالة
+                </span>
+            </div>
+
+            <!-- سطور الأرقام -->
+            <table style="width:100%; font-size:14px;">
+                <tr>
+                    <td style="padding:6px 0; color:var(--text-muted);">الرواتب المتوقعة (مصروفات):</td>
+                    <td dir="ltr" style="text-align:left; color:var(--danger); font-weight:600;"
+                        th:text="${#numbers.formatDecimal(m.expectedExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                </tr>
+                <tr>
+                    <td style="padding:6px 0; color:var(--text-muted);">التحصيلات المتوقعة (دخل):</td>
+                    <td dir="ltr" style="text-align:left; color:var(--primary); font-weight:600;"
+                        th:text="${#numbers.formatDecimal(m.expectedIncome, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                </tr>
+                <tr style="border-top:1px solid var(--border);">
+                    <td style="padding:8px 0; font-weight:600;">توازن الشهر:</td>
+                    <td dir="ltr" style="text-align:left; font-weight:700; font-size:15px;"
+                        th:style="'text-align:left; font-weight:700; font-size:15px; color:' + (${m.monthlyBalance.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'var(--primary)' : 'var(--danger)')"
+                        th:text="(${m.monthlyBalance.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? '+' : '') + ${#numbers.formatDecimal(m.monthlyBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                </tr>
+            </table>
+
+            <!-- الرصيد التراكمي -->
+            <div style="margin-top:14px; padding:12px; border-radius:6px; text-align:center;"
+                 th:style="'margin-top:14px; padding:12px; border-radius:6px; text-align:center; background:' + (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0} ? 'var(--danger-light)' : (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).valueOf(100000)) < 0} ? 'var(--accent-light)' : 'var(--primary-light)'))">
+                <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">الرصيد التراكمي</div>
+                <div style="font-size:20px; font-weight:700;" dir="ltr"
+                     th:style="'font-size:20px; font-weight:700; color:' + (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0} ? 'var(--danger)' : (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).valueOf(100000)) < 0} ? 'var(--accent)' : 'var(--primary)'))"
+                     th:text="${#numbers.formatDecimal(m.cumulativeBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ملاحظة المنهجية -->
+    <div class="card" style="border-top-color:var(--accent); background:var(--accent-light);">
+        <p style="margin:0; font-size:13px; color:#7a5800;">
+            <strong>ملاحظة منهجية:</strong>
+            الدخل الشهري المتوقع = إجمالي المبالغ المتبقية من التعهدات مقسوماً على 6 أشهر.
+            المصروفات الشهرية = مجموع رواتب جميع الفصول النشطة.
+            الرصيد التراكمي يبدأ من الرصيد الحالي للمؤسسة.
+        </p>
+    </div>
+
+</div>
+</body>
+</html>

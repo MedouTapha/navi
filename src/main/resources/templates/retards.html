@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('المتأخرون')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+
+    <!-- رأس الصفحة -->
+    <div class="card" style="border-top-color:var(--danger);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+                <h2 class="card-header" style="color:var(--danger); margin-bottom:4px;">المتأخرون عن الدفع</h2>
+                <p style="color:var(--text-muted); font-size:13px; margin:0;">
+                    جميع الالتزامات التي لم تُسدَّد بالكامل — مرتبة من الأكبر إلى الأصغر
+                </p>
+            </div>
+            <div class="stats-card" style="background:var(--danger); padding:14px 24px; min-width:0;">
+                <div style="font-size:12px; opacity:.85; margin-bottom:4px;">إجمالي المتبقي</div>
+                <div style="font-size:22px; font-weight:700;" dir="ltr"
+                     th:text="${#numbers.formatDecimal(totalRemaining, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- لا يوجد تأخر -->
+    <div th:if="${#lists.isEmpty(commitments)}" class="card"
+         style="text-align:center; padding:50px; color:var(--primary);">
+        <div style="font-size:48px; margin-bottom:16px;">✓</div>
+        <h3>جميع الالتزامات مدفوعة بالكامل</h3>
+        <p style="color:var(--text-muted); margin-top:8px;">لا يوجد أي تأخر في المدفوعات حالياً</p>
+    </div>
+
+    <!-- جدول المتأخرين -->
+    <div class="card" th:unless="${#lists.isEmpty(commitments)}">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>المتبرع</th>
+                    <th>الفصل / الفرع</th>
+                    <th>السنة المالية</th>
+                    <th>الالتزام</th>
+                    <th>المدفوع</th>
+                    <th>المتبقي</th>
+                    <th>آخر دفعة</th>
+                    <th>الحالة</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c, stat : ${commitments}">
+                    <td style="color:var(--text-muted); font-size:13px;"
+                        th:text="${stat.index + 1}">1</td>
+                    <td>
+                        <a th:href="@{/donors/{id}(id=${c.donorId})}"
+                           style="color:var(--primary); font-weight:700;"
+                           th:text="${c.donorName}">اسم المتبرع</a>
+                    </td>
+                    <td>
+                        <div style="font-weight:600;" th:text="${c.className}">الفصل</div>
+                        <small style="color:var(--text-muted);" th:text="${c.branchName}">الفرع</small>
+                    </td>
+                    <td th:text="${c.financialYear}">2025</td>
+                    <td dir="ltr"
+                        th:text="${#numbers.formatDecimal(c.annualAmount, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                    <td dir="ltr" style="color:var(--primary); font-weight:600;"
+                        th:text="${#numbers.formatDecimal(c.totalPaid, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                    <td dir="ltr" style="color:var(--danger); font-weight:700;"
+                        th:text="${#numbers.formatDecimal(c.remainingBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                    <td>
+                        <!-- آخر دفعة + عدد الأيام منذها -->
+                        <span th:if="${c.lastPaymentDate != null}">
+                            <div th:text="${#temporals.format(c.lastPaymentDate, 'dd/MM/yyyy')}">-</div>
+                            <small th:with="days=${T(java.time.temporal.ChronoUnit).DAYS.between(c.lastPaymentDate, today)}"
+                                   th:style="${days > 90} ? 'color:var(--danger);font-weight:600;' : (${days > 30} ? 'color:var(--accent);' : 'color:var(--primary);')"
+                                   th:text="${days} + ' يوم'">0 يوم</small>
+                        </span>
+                        <span th:unless="${c.lastPaymentDate != null}"
+                              style="color:var(--danger); font-weight:600; font-size:13px;">
+                            لا يوجد دفعة
+                        </span>
+                    </td>
+                    <td>
+                        <!-- شارة حسب التأخر -->
+                        <span th:if="${c.lastPaymentDate == null}"
+                              class="badge" style="background:var(--danger-light);color:var(--danger);border:1px solid var(--danger);">
+                            لم يدفع
+                        </span>
+                        <span th:if="${c.lastPaymentDate != null}"
+                              th:with="days=${T(java.time.temporal.ChronoUnit).DAYS.between(c.lastPaymentDate, today)}">
+                            <span th:if="${days > 90}"
+                                  class="badge" style="background:var(--danger-light);color:var(--danger);border:1px solid var(--danger);">
+                                متأخر جداً
+                            </span>
+                            <span th:if="${days > 30 and days <= 90}"
+                                  class="badge badge-warning">
+                                متأخر
+                            </span>
+                            <span th:if="${days <= 30}"
+                                  class="badge badge-success">
+                                حديث
+                            </span>
+                        </span>
+                    </td>
+                    <td>
+                        <a th:href="@{/donors/{id}(id=${c.donorId})}"
+                           class="btn btn-primary btn-sm">+ دفعة</a>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr style="font-weight:700; background:var(--danger-light);">
+                    <td colspan="6" style="text-align:right; color:var(--danger);">
+                        الإجمالي المتبقي (<span th:text="${#lists.size(commitments)}">0</span> التزام)
+                    </td>
+                    <td dir="ltr" style="color:var(--danger); font-size:16px;"
+                        th:text="${#numbers.formatDecimal(totalRemaining, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
+                    <td colspan="3"></td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
