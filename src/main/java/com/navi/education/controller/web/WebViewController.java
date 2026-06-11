@@ -98,6 +98,7 @@ public class WebViewController {
         model.addAttribute("donor", donorService.getDonorById(id));
         model.addAttribute("commitments", commitmentService.getCommitmentsByDonor(id));
         model.addAttribute("payments", paymentService.getPaymentsByDonor(id));
+        model.addAttribute("classes", classService.getAllClasses());
         model.addAttribute("activePage", "donors");
         return "donors/view";
     }

@@ -41,7 +41,10 @@
 
     <!-- الالتزامات -->
     <div class="card">
-        <h3 class="card-header">الالتزامات</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+            <h3 class="card-header" style="margin:0; padding:0; border:none;">الالتزامات</h3>
+            <button class="btn btn-primary btn-sm" onclick="openCommitmentModal()">+ التزام جديد</button>
+        </div>
         <div th:if="${#lists.isEmpty(commitments)}" style="color:var(--text-muted); padding:20px; text-align:center;">
             لا توجد التزامات
         </div>
@@ -177,10 +180,73 @@
     </div>
 </div>
 
+<!-- مودال التزام جديد -->
+<div id="commitmentModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:10px; padding:30px; width:95%; max-width:440px; box-shadow:0 10px 40px rgba(0,0,0,.25); border-top:4px solid var(--primary);">
+        <h3 style="margin-bottom:20px; color:var(--primary);">التزام جديد</h3>
+        <div class="form-group">
+            <label>الفصل</label>
+            <select id="cmtClassId" class="form-control">
+                <option th:each="c : ${classes}" th:value="${c.id}"
+                        th:text="${c.nameAr} + ' — ' + ${c.branchName}">-</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>الالتزام السنوي (MRU)</label>
+            <input type="number" id="cmtAmount" class="form-control" min="1" placeholder="0" />
+        </div>
+        <div class="form-group">
+            <label>تاريخ الالتزام</label>
+            <input type="date" id="cmtDate" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>ملاحظات (اختياري)</label>
+            <input type="text" id="cmtNotes" class="form-control" placeholder="..." />
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+            <button class="btn btn-secondary" onclick="document.getElementById('commitmentModal').style.display='none'">إلغاء</button>
+            <button class="btn btn-primary" onclick="submitCommitment()">حفظ الالتزام</button>
+        </div>
+        <p id="cmtError" style="color:var(--danger); margin-top:10px; display:none;"></p>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('pmtDate').value = new Date().toISOString().slice(0,10);
 });
+
+function openCommitmentModal() {
+    document.getElementById('cmtClassId').value = '';
+    document.getElementById('cmtAmount').value = '';
+    document.getElementById('cmtDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('cmtNotes').value = '';
+    document.getElementById('cmtError').style.display = 'none';
+    document.getElementById('commitmentModal').style.display = 'flex';
+}
+
+function submitCommitment() {
+    const donorId = /*[[${donor.id}]]*/ 0;
+    const classId = parseInt(document.getElementById('cmtClassId').value);
+    const annualAmount = parseFloat(document.getElementById('cmtAmount').value);
+    const commitmentDate = document.getElementById('cmtDate').value;
+    const notes = document.getElementById('cmtNotes').value.trim() || null;
+    const err = document.getElementById('cmtError');
+
+    if (!classId) { showErr(err, 'اختر الفصل'); return; }
+    if (!annualAmount || annualAmount <= 0) { showErr(err, 'أدخل مبلغاً صحيحاً'); return; }
+    if (!commitmentDate) { showErr(err, 'أدخل التاريخ'); return; }
+
+    fetch('/api/commitments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ donorId, classId, annualAmount, commitmentDate, notes })
+    }).then(r => {
+        if (r.ok || r.status === 201) { location.reload(); }
+        else r.json().then(j => showErr(err, j.message || 'خطأ غير معروف'))
+                     .catch(() => showErr(err, 'خطأ في الاتصال'));
+    }).catch(() => showErr(err, 'خطأ في الاتصال'));
+}
 
 function openPaymentModal(commitmentId, className, remaining) {
     document.getElementById('pmtCommitmentId').value = commitmentId;
