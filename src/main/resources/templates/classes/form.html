@@ -12,15 +12,9 @@
               method="post">
 
             <div class="form-group">
-                <label>الاسم بالعربية *</label>
+                <label>اسم الفصل *</label>
                 <input type="text" class="form-control" name="nameAr" required
                        th:value="${class != null} ? ${class.nameAr} : ''" placeholder="مثال: فصل التجويد" />
-            </div>
-
-            <div class="form-group">
-                <label>الاسم بالفرنسية</label>
-                <input type="text" class="form-control" name="nameFr"
-                       th:value="${class != null} ? ${class.nameFr} : ''" placeholder="Ex: Classe Tajwid" />
             </div>
 
             <div class="form-group">

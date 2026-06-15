@@ -11,7 +11,7 @@
             <a href="/classes/new" class="btn btn-primary">+ فصل جديد</a>
         </div>
 
-        <div style="overflow-x:auto;">
+        <div class="table-wrapper">
             <table class="table">
                 <thead>
                 <tr>
@@ -28,10 +28,9 @@
                 <tr th:each="cls : ${classes}">
                     <td>
                         <div style="font-weight:600;" th:text="${cls.nameAr}">-</div>
-                        <small style="color:#7f8c8d;" th:text="${cls.nameFr}">-</small>
                     </td>
                     <td th:text="${cls.branchName}">-</td>
-                    <td><span class="badge badge-info" th:text="${cls.classType.frenchName}">-</span></td>
+                    <td><span class="badge badge-info" th:text="${cls.classType.arabicName}">-</span></td>
                     <td dir="ltr" style="font-weight:600;"
                         th:text="${#numbers.formatDecimal(cls.monthlyFixedAmount, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</td>
                     <td><span class="badge badge-success" th:text="${cls.currentFinancialYear}">-</span></td>
