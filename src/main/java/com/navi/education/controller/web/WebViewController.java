@@ -1,11 +1,15 @@
 package com.navi.education.controller.web;
 
+import com.navi.education.dto.request.DonorRequest;
+import com.navi.education.dto.request.EducationClassRequest;
 import com.navi.education.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
@@ -67,6 +71,13 @@ public class WebViewController {
         return "classes/form";
     }
 
+    @PostMapping("/classes/new")
+    public String createClass(@ModelAttribute EducationClassRequest request) {
+        request.setNameFr(request.getNameAr());
+        var created = classService.createClass(request);
+        return "redirect:/classes/" + created.getId();
+    }
+
     @GetMapping("/classes/{id}")
     public String viewClass(@PathVariable Long id, Model model) {
         model.addAttribute("class", classService.getClassById(id));
@@ -85,6 +96,13 @@ public class WebViewController {
         return "classes/form";
     }
 
+    @PostMapping("/classes/{id}/edit")
+    public String updateClass(@PathVariable Long id, @ModelAttribute EducationClassRequest request) {
+        request.setNameFr(request.getNameAr());
+        classService.updateClass(id, request);
+        return "redirect:/classes/" + id;
+    }
+
     @GetMapping("/donors")
     public String listDonors(Model model) {
         model.addAttribute("donors", donorService.getAllDonors());
@@ -96,6 +114,12 @@ public class WebViewController {
     public String newDonor(Model model) {
         model.addAttribute("activePage", "donors");
         return "donors/form";
+    }
+
+    @PostMapping("/donors/new")
+    public String createDonor(@ModelAttribute DonorRequest request) {
+        var created = donorService.createDonor(request);
+        return "redirect:/donors/" + created.getId();
     }
 
     @GetMapping("/donors/{id}")
@@ -113,6 +137,12 @@ public class WebViewController {
         model.addAttribute("donor", donorService.getDonorById(id));
         model.addAttribute("activePage", "donors");
         return "donors/form";
+    }
+
+    @PostMapping("/donors/{id}/edit")
+    public String updateDonor(@PathVariable Long id, @ModelAttribute DonorRequest request) {
+        donorService.updateDonor(id, request);
+        return "redirect:/donors/" + id;
     }
 
     @GetMapping("/rapport-mensuel")
