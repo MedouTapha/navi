@@ -1,14 +1,18 @@
 package com.navi.education.service;
 
 import com.navi.education.dto.request.EducationClassRequest;
+import com.navi.education.dto.response.ClassFinancialYearSummary;
 import com.navi.education.dto.response.EducationClassResponse;
 import com.navi.education.exception.ResourceNotFoundException;
 import com.navi.education.model.entity.Branch;
 import com.navi.education.model.entity.EducationClass;
 import com.navi.education.model.enums.ClassType;
+import com.navi.education.model.enums.ExpenseType;
+import com.navi.education.repository.AnnualCommitmentRepository;
 import com.navi.education.repository.BranchRepository;
 import com.navi.education.repository.EducationClassRepository;
 import com.navi.education.repository.ExpenseRepository;
+import com.navi.education.repository.ExtraDonationRepository;
 import com.navi.education.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,6 +34,8 @@ public class EducationClassService {
     private final BranchRepository branchRepository;
     private final ExpenseRepository expenseRepository;
     private final PaymentRepository paymentRepository;
+    private final AnnualCommitmentRepository commitmentRepository;
+    private final ExtraDonationRepository extraDonationRepository;
 
     public EducationClassResponse createClass(EducationClassRequest request) {
         Branch branch = branchRepository.findById(request.getBranchId())
@@ -110,6 +117,58 @@ public class EducationClassService {
         EducationClass educationClass = classRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Classe", id));
         return toClassResponse(educationClass);
+    }
+
+    /**
+     * Historique du bilan de la classe par année financière, de l'année de
+     * démarrage jusqu'à l'année financière en cours (incluse).
+     */
+    @Transactional(readOnly = true)
+    public List<ClassFinancialYearSummary> getFinancialYearsHistory(Long id) {
+        EducationClass educationClass = classRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Classe", id));
+
+        int currentYear = educationClass.getFinancialYear(LocalDate.now());
+        if (currentYear == 0) {
+            return List.of();
+        }
+
+        List<ClassFinancialYearSummary> history = new ArrayList<>();
+        for (int year = educationClass.getStartDate().getYear(); year <= currentYear; year++) {
+            BigDecimal fixed = nvl(expenseRepository.getTotalExpensesByClassTypeAndYear(id, ExpenseType.FIXED, year));
+            BigDecimal extra = nvl(expenseRepository.getTotalExpensesByClassTypeAndYear(id, ExpenseType.EXTRA, year));
+            BigDecimal committed = nvl(commitmentRepository.getTotalCommitmentsByClassAndYear(id, year));
+            BigDecimal paid = nvl(paymentRepository.getTotalPaymentsByClassAndYear(id, year));
+            BigDecimal extraDon = nvl(extraDonationRepository.getTotalByClassAndYear(id, year));
+
+            BigDecimal totalExpenses = fixed.add(extra);
+            BigDecimal remaining = committed.subtract(paid).max(BigDecimal.ZERO);
+            BigDecimal totalReceived = paid.add(extraDon);
+            BigDecimal balance = totalReceived.subtract(totalExpenses);
+
+            history.add(ClassFinancialYearSummary.builder()
+                    .financialYear(year)
+                    .periodStart(educationClass.getFinancialYearStart(year))
+                    .periodEnd(educationClass.getFinancialYearEnd(year))
+                    .current(year == currentYear)
+                    .fixedExpenses(fixed)
+                    .extraExpenses(extra)
+                    .totalExpenses(totalExpenses)
+                    .committedDonations(committed)
+                    .paidDonations(paid)
+                    .remainingDonations(remaining)
+                    .extraDonations(extraDon)
+                    .totalReceived(totalReceived)
+                    .balance(balance)
+                    .build());
+        }
+
+        history.sort((a, b) -> b.getFinancialYear() - a.getFinancialYear());
+        return history;
+    }
+
+    private BigDecimal nvl(BigDecimal value) {
+        return value != null ? value : BigDecimal.ZERO;
     }
 
     public void deleteClass(Long id) {

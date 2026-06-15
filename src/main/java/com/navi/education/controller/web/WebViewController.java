@@ -88,6 +88,14 @@ public class WebViewController {
         return "classes/view";
     }
 
+    @GetMapping("/classes/{id}/years")
+    public String classFinancialYears(@PathVariable Long id, Model model) {
+        model.addAttribute("class", classService.getClassById(id));
+        model.addAttribute("years", classService.getFinancialYearsHistory(id));
+        model.addAttribute("activePage", "classes");
+        return "classes/years";
+    }
+
     @GetMapping("/classes/{id}/edit")
     public String editClass(@PathVariable Long id, Model model) {
         model.addAttribute("class", classService.getClassById(id));

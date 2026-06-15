@@ -13,6 +13,7 @@
                 <h2 style="margin:0;" th:text="${class.nameAr}">اسم الفصل</h2>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <a th:href="@{/classes/{id}/years(id=${class.id})}" class="btn btn-accent">السنوات المالية</a>
                 <a th:href="@{/classes/{id}/edit(id=${class.id})}" class="btn btn-primary">تعديل</a>
                 <a th:href="@{/branches/{id}(id=${class.branchId})}" class="btn btn-secondary">الفرع</a>
             </div>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('السنوات المالية')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
+            <h2 class="card-header" style="margin:0; border:none; padding:0;"
+                th:text="'السنوات المالية — ' + ${class.nameAr}">السنوات المالية</h2>
+            <a th:href="@{/classes/{id}(id=${class.id})}" class="btn btn-secondary">رجوع للفصل</a>
+        </div>
+
+        <div th:if="${years.isEmpty()}" style="text-align:center; color:var(--text-muted); padding:30px;">
+            لا توجد سنوات مالية بعد لهذا الفصل
+        </div>
+
+        <div class="table-wrapper" th:unless="${years.isEmpty()}">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>السنة المالية</th>
+                    <th>الفترة</th>
+                    <th>رواتب (ثابت)</th>
+                    <th>مصروفات إضافية</th>
+                    <th>إجمالي المصروفات</th>
+                    <th>الالتزامات</th>
+                    <th>المدفوع</th>
+                    <th>المتبقي</th>
+                    <th>هبات إضافية</th>
+                    <th>إجمالي المستلم</th>
+                    <th>الرصيد</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="y : ${years}">
+                    <td>
+                        <span class="badge" th:class="${y.current} ? 'badge-success' : 'badge-info'"
+                              th:text="${y.financialYear}">2025</span>
+                        <span th:if="${y.current}" style="font-size:11px; color:var(--text-muted);"> (السنة الحالية)</span>
+                    </td>
+                    <td style="font-size:13px; color:var(--text-muted);">
+                        <span th:text="${#temporals.format(y.periodStart, 'dd/MM/yyyy')}"></span>
+                        —
+                        <span th:text="${#temporals.format(y.periodEnd, 'dd/MM/yyyy')}"></span>
+                    </td>
+                    <td dir="ltr" style="color:var(--accent);"
+                        th:text="${#numbers.formatDecimal(y.fixedExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
+                    <td dir="ltr" style="color:var(--accent);"
+                        th:text="${#numbers.formatDecimal(y.extraExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
+                    <td dir="ltr" style="font-weight:600; color:var(--accent);"
+                        th:text="${#numbers.formatDecimal(y.totalExpenses, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
+                    <td dir="ltr"
+                        th:text="${#numbers.formatDecimal(y.committedDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
+                    <td dir="ltr" style="color:var(--primary); font-weight:600;"
+                        th:text="${#numbers.formatDecimal(y.paidDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
+                    <td dir="ltr" style="color:var(--danger);"
+                        th:text="${#numbers.formatDecimal(y.remainingDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
+                    <td dir="ltr" style="color:var(--accent);"
+                        th:text="${#numbers.formatDecimal(y.extraDonations, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
+                    <td dir="ltr" style="font-weight:600; color:var(--primary);"
+                        th:text="${#numbers.formatDecimal(y.totalReceived, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
+                    <td dir="ltr"
+                        th:style="${y.balance.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'color:var(--primary); font-weight:bold;' : 'color:var(--danger); font-weight:bold;'"
+                        th:text="${#numbers.formatDecimal(y.balance, 0, 'COMMA', 0, 'POINT')} + ' MRU'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
