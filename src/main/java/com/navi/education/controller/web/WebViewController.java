@@ -27,7 +27,12 @@ public class WebViewController {
 
     @GetMapping("/")
     public String index() {
-        return "redirect:/branches";
+        return "redirect:/dashboard";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 
     @GetMapping("/branches")

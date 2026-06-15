@@ -1,9 +1,37 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" dir="rtl" lang="ar">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      dir="rtl" lang="ar">
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
     <title th:text="${title}">معهد الإمام نافع</title>
+    <script>
+        // Injecte automatiquement le jeton CSRF dans toutes les requêtes fetch mutantes.
+        (function () {
+            var t = document.querySelector('meta[name="_csrf"]');
+            var h = document.querySelector('meta[name="_csrf_header"]');
+            if (!t || !h || !t.content || !h.content) return;
+            var token = t.content, header = h.content;
+            var orig = window.fetch;
+            window.fetch = function (input, init) {
+                init = init || {};
+                var method = (init.method || 'GET').toUpperCase();
+                if (method !== 'GET' && method !== 'HEAD') {
+                    var hdrs = init.headers || {};
+                    if (typeof Headers !== 'undefined' && hdrs instanceof Headers) {
+                        hdrs.set(header, token);
+                    } else {
+                        hdrs[header] = token;
+                    }
+                    init.headers = hdrs;
+                }
+                return orig.call(this, input, init);
+            };
+        })();
+    </script>
     <style>
         :root {
             --primary:   #1B6B3A;
@@ -299,8 +327,17 @@
 <body>
 <div th:fragment="header">
     <div class="header">
-        <div class="container">
-            <h1>معهد الإمام نافع لتعليم القرآن الكريم وعلومه</h1>
+        <div class="container" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+            <h1 style="margin:0;">معهد الإمام نافع لتعليم القرآن الكريم وعلومه</h1>
+            <div style="display:flex; align-items:center; gap:12px; font-size:14px; white-space:nowrap;">
+                <span sec:authentication="name" style="opacity:.9;">المستخدم</span>
+                <form th:action="@{/logout}" method="post" style="margin:0;">
+                    <button type="submit" class="btn btn-sm"
+                            style="background:rgba(255,255,255,.18); color:#fff; border:1px solid rgba(255,255,255,.35);">
+                        خروج
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
     <nav class="nav">

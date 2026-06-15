@@ -1,0 +1,25 @@
+[Unit]
+Description=Navi Education - Système de gestion معهد الإمام نافع
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=navi
+Group=navi
+WorkingDirectory=/opt/navi-education
+EnvironmentFile=/etc/navi-education/navi.env
+ExecStart=/usr/bin/java -jar /opt/navi-education/navi-education.jar --spring.profiles.active=prod
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=10
+
+# Renforcement de sécurité du service
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/navi-education
+
+[Install]
+WantedBy=multi-user.target
