@@ -1,298 +1,212 @@
-# 🚀 Guide de Déploiement
+# 🚀 Guide de déploiement — Navi Education (VPS Ubuntu)
 
-## Configuration pour la Production
+Déploiement de l'application **معهد الإمام نافع** sur un serveur Ubuntu (VPS), en
+service `systemd`, avec **PostgreSQL** et **HTTPS** complet.
 
-### 1. Configuration PostgreSQL
+> Testé sur Ubuntu 22.04 / 24.04 LTS. Adaptez les noms de domaine et mots de passe.
 
-Créez un fichier `application-prod.properties`:
+---
 
-```properties
-# Application Name
-spring.application.name=navi-education
+## 0. Vue d'ensemble de l'architecture
 
-# Server Configuration
-server.port=8080
-
-# PostgreSQL Database Configuration
-spring.datasource.url=jdbc:postgresql://localhost:5432/navi_education
-spring.datasource.username=${DB_USERNAME}
-spring.datasource.password=${DB_PASSWORD}
-spring.datasource.driver-class-name=org.postgresql.Driver
-
-# JPA Configuration
-spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=false
-spring.jpa.properties.hibernate.format_sql=false
-
-# Logging
-logging.level.com.navi.education=INFO
-logging.level.org.springframework.web=WARN
-logging.level.org.hibernate.SQL=WARN
-
-# Production Settings
-spring.thymeleaf.cache=true
+```
+Internet ──HTTPS──> Nginx (443) ──proxy──> Spring Boot (127.0.0.1:8080) ──> PostgreSQL (5432)
+                      │
+                  Certbot / Let's Encrypt
 ```
 
-### 2. Créer la base de données PostgreSQL
+- L'application Java **n'est jamais exposée directement** : seul Nginx écoute sur Internet.
+- Spring Security protège **toutes** les pages (login obligatoire).
+- Les secrets (mot de passe DB, admin) sont dans `/etc/navi-education/navi.env` (chmod 600).
 
+---
+
+## 1. Préparer le serveur
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y openjdk-17-jre-headless postgresql nginx git
+```
+
+Vérifier Java :
+```bash
+java -version   # doit afficher 17.x
+```
+
+---
+
+## 2. Configurer PostgreSQL
+
+```bash
+sudo -u postgres psql
+```
+
+Dans l'invite `psql` :
 ```sql
 CREATE DATABASE navi_education;
-CREATE USER navi_user WITH ENCRYPTED PASSWORD 'votre_mot_de_passe';
+CREATE USER navi_user WITH ENCRYPTED PASSWORD 'mot_de_passe_db_fort';
 GRANT ALL PRIVILEGES ON DATABASE navi_education TO navi_user;
+-- PostgreSQL 15+ : donner les droits sur le schéma public
+\c navi_education
+GRANT ALL ON SCHEMA public TO navi_user;
+\q
 ```
 
-### 3. Variables d'environnement
+---
 
-Créez un fichier `.env`:
+## 3. Créer l'utilisateur système et les dossiers
 
 ```bash
-DB_USERNAME=navi_user
-DB_PASSWORD=votre_mot_de_passe
-SPRING_PROFILES_ACTIVE=prod
+sudo useradd -r -s /usr/sbin/nologin navi
+sudo mkdir -p /opt/navi-education
+sudo mkdir -p /etc/navi-education
 ```
 
-### 4. Build de l'application
+---
+
+## 4. Construire le JAR
+
+**Sur votre machine de développement** (avec accès Internet pour Maven) :
+```bash
+cd navi
+./mvnw clean package -DskipTests    # ou : mvn clean package -DskipTests
+```
+Le JAR est généré dans `target/navi-education-1.0.0.jar`.
+
+Copier le JAR sur le serveur :
+```bash
+scp target/navi-education-1.0.0.jar user@VOTRE_SERVEUR:/tmp/
+```
+Puis sur le serveur :
+```bash
+sudo mv /tmp/navi-education-1.0.0.jar /opt/navi-education/navi-education.jar
+sudo chown -R navi:navi /opt/navi-education
+```
+
+---
+
+## 5. Configurer les variables d'environnement (secrets)
 
 ```bash
-mvn clean package -DskipTests
+sudo cp deploy/navi.env.example /etc/navi-education/navi.env
+sudo nano /etc/navi-education/navi.env     # éditez les mots de passe
+sudo chmod 600 /etc/navi-education/navi.env
+sudo chown root:navi /etc/navi-education/navi.env
 ```
 
-Le fichier JAR sera généré dans `target/navi-education-1.0.0.jar`
+Renseignez **obligatoirement** :
+- `DB_PASSWORD` → le mot de passe créé à l'étape 2
+- `ADMIN_PASSWORD` → un mot de passe fort pour le compte administrateur initial
 
-### 5. Lancement en production
+---
 
-**Option 1: Directement avec Java**
+## 6. Installer le service systemd
+
 ```bash
-java -jar target/navi-education-1.0.0.jar --spring.profiles.active=prod
-```
-
-**Option 2: Avec variables d'environnement**
-```bash
-export DB_USERNAME=navi_user
-export DB_PASSWORD=votre_mot_de_passe
-export SPRING_PROFILES_ACTIVE=prod
-java -jar target/navi-education-1.0.0.jar
-```
-
-**Option 3: Service systemd**
-
-Créez `/etc/systemd/system/navi-education.service`:
-
-```ini
-[Unit]
-Description=Navi Education Management System
-After=syslog.target network.target
-
-[Service]
-User=navi
-WorkingDirectory=/opt/navi-education
-ExecStart=/usr/bin/java -jar /opt/navi-education/navi-education-1.0.0.jar
-SuccessExitStatus=143
-Environment="SPRING_PROFILES_ACTIVE=prod"
-Environment="DB_USERNAME=navi_user"
-Environment="DB_PASSWORD=votre_mot_de_passe"
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Ensuite:
-```bash
+sudo cp deploy/navi-education.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable navi-education
 sudo systemctl start navi-education
+```
+
+Vérifier l'état et les logs :
+```bash
 sudo systemctl status navi-education
+sudo journalctl -u navi-education -f
 ```
 
-### 6. Configuration Nginx (Reverse Proxy)
+L'application répond maintenant en local sur `http://127.0.0.1:8080`.
 
-Créez `/etc/nginx/sites-available/navi-education`:
+---
 
-```nginx
-server {
-    listen 80;
-    server_name votre-domaine.com;
+## 7. Configurer Nginx (reverse-proxy)
 
-    location / {
-        proxy_pass http://localhost:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Activez le site:
 ```bash
+sudo cp deploy/nginx-navi-education.conf /etc/nginx/sites-available/navi-education
+sudo nano /etc/nginx/sites-available/navi-education   # remplacez votre-domaine.com
 sudo ln -s /etc/nginx/sites-available/navi-education /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
-### 7. SSL avec Let's Encrypt
+---
+
+## 8. Activer HTTPS (Let's Encrypt)
 
 ```bash
-sudo apt install certbot python3-certbot-nginx
+sudo apt install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d votre-domaine.com
 ```
+Certbot configure automatiquement le certificat + la redirection HTTP→HTTPS.
+Le renouvellement est automatique (timer systemd `certbot.timer`).
 
-## Docker Deployment
+---
 
-### Dockerfile
-
-Créez un `Dockerfile`:
-
-```dockerfile
-FROM openjdk:17-jdk-slim
-VOLUME /tmp
-ARG JAR_FILE=target/navi-education-1.0.0.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
-```
-
-### docker-compose.yml
-
-```yaml
-version: '3.8'
-
-services:
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: navi_education
-      POSTGRES_USER: navi_user
-      POSTGRES_PASSWORD: votre_mot_de_passe
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-  app:
-    build: .
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      DB_USERNAME: navi_user
-      DB_PASSWORD: votre_mot_de_passe
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/navi_education
-    depends_on:
-      - postgres
-
-volumes:
-  postgres_data:
-```
-
-Lancement avec Docker:
-```bash
-docker-compose up -d
-```
-
-## Sauvegardes
-
-### Sauvegarde PostgreSQL
+## 9. Pare-feu (UFW)
 
 ```bash
-# Backup
-pg_dump -U navi_user -h localhost navi_education > backup_$(date +%Y%m%d).sql
-
-# Restore
-psql -U navi_user -h localhost navi_education < backup_20240101.sql
-```
-
-### Script de sauvegarde automatique (cron)
-
-```bash
-#!/bin/bash
-BACKUP_DIR="/var/backups/navi-education"
-DATE=$(date +%Y%m%d_%H%M%S)
-pg_dump -U navi_user -h localhost navi_education | gzip > $BACKUP_DIR/backup_$DATE.sql.gz
-# Garder seulement les 30 derniers backups
-find $BACKUP_DIR -name "backup_*.sql.gz" -mtime +30 -delete
-```
-
-Ajoutez au crontab:
-```bash
-0 2 * * * /path/to/backup-script.sh
-```
-
-## Monitoring
-
-### Logs
-
-```bash
-# Voir les logs
-sudo journalctl -u navi-education -f
-
-# Logs de l'application
-tail -f /var/log/navi-education/application.log
-```
-
-### Health Check
-
-Vérifiez que l'application fonctionne:
-```bash
-curl http://localhost:8080/api/branches
-```
-
-## Sécurité
-
-1. **Ne jamais exposer la console H2 en production**
-2. **Utiliser HTTPS en production**
-3. **Protéger les endpoints sensibles avec Spring Security** (à ajouter)
-4. **Utiliser des variables d'environnement pour les secrets**
-5. **Configurer un pare-feu (ufw/firewalld)**
-
-```bash
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
+sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
 sudo ufw enable
 ```
+> PostgreSQL (5432) et l'app (8080) restent **uniquement** accessibles en local —
+> ne pas les ouvrir vers l'extérieur.
 
-## Mise à jour
+---
 
-1. **Sauvegarder la base de données**
-2. **Arrêter l'application**
-   ```bash
-   sudo systemctl stop navi-education
-   ```
-3. **Remplacer le JAR**
-   ```bash
-   cp target/navi-education-1.0.0.jar /opt/navi-education/
-   ```
-4. **Redémarrer l'application**
-   ```bash
-   sudo systemctl start navi-education
-   ```
-5. **Vérifier les logs**
-   ```bash
-   sudo journalctl -u navi-education -f
-   ```
+## 10. Première connexion
 
-## Troubleshooting
+Ouvrez `https://votre-domaine.com` → page de login.
+Connectez-vous avec `ADMIN_USERNAME` / `ADMIN_PASSWORD` définis à l'étape 5.
 
-### L'application ne démarre pas
+---
 
-1. Vérifier les logs: `sudo journalctl -u navi-education -n 100`
-2. Vérifier la connexion à PostgreSQL
-3. Vérifier les permissions sur le fichier JAR
-4. Vérifier les variables d'environnement
+## 🔄 Mettre à jour l'application
 
-### Erreurs de base de données
+```bash
+# 1. Reconstruire le JAR en local, le copier dans /tmp sur le serveur
+sudo systemctl stop navi-education
+sudo mv /tmp/navi-education-1.0.0.jar /opt/navi-education/navi-education.jar
+sudo chown navi:navi /opt/navi-education/navi-education.jar
+sudo systemctl start navi-education
+```
+Les données PostgreSQL sont conservées (le schéma est mis à jour automatiquement
+par Hibernate `ddl-auto=update`).
 
-1. Vérifier que PostgreSQL est en cours d'exécution
-2. Vérifier les credentials
-3. Vérifier que l'utilisateur a les bonnes permissions
+---
 
-### Performance lente
+## 🔒 Récapitulatif sécurité
 
-1. Augmenter la mémoire JVM: `-Xmx2g -Xms1g`
-2. Optimiser les requêtes SQL
-3. Ajouter des index sur la base de données
-4. Configurer un pool de connexions
+| Élément | Mesure |
+|---|---|
+| Authentification | Spring Security, login obligatoire sur **toutes** les pages |
+| Mots de passe | Hachés en **BCrypt** en base |
+| CSRF | Activé (formulaires + requêtes fetch protégés) |
+| Sessions | Cookies `HttpOnly` + `Secure` + `SameSite=Lax`, expiration 30 min |
+| Transport | HTTPS (Let's Encrypt), HTTP redirigé |
+| Secrets | Hors du code, dans `navi.env` (chmod 600) |
+| Base de données | Accessible uniquement en local, utilisateur dédié |
+| Concurrence | Verrouillage optimiste (`@Version`) sur les entités financières |
+| Console H2 | **Désactivée** en production |
 
-## Support
+---
 
-Pour toute question ou problème, consultez les logs et la documentation.
+## 💾 Sauvegarde de la base (recommandé)
+
+Sauvegarde quotidienne via cron :
+```bash
+sudo crontab -e
+# Ajouter :
+0 2 * * * pg_dump -U navi_user navi_education | gzip > /var/backups/navi_$(date +\%F).sql.gz
+```
+
+---
+
+## 🧪 Développement local (rappel)
+
+En local, l'app tourne avec le profil par défaut (H2 en mémoire) :
+```bash
+./mvnw spring-boot:run
+```
+Identifiants par défaut en dev : `admin` / `admin123` (modifiable via `ADMIN_USERNAME` / `ADMIN_PASSWORD`).
+Accès : http://localhost:8080

@@ -5,6 +5,7 @@ import com.navi.education.model.enums.*;
 import com.navi.education.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,11 +27,20 @@ public class DataInitializerService implements CommandLineRunner {
     private final AnnualCommitmentRepository commitmentRepository;
     private final PaymentRepository paymentRepository;
 
+    @Value("${app.seed-demo-data:true}")
+    private boolean seedDemoData;
+
     @Override
     @Transactional
     public void run(String... args) {
         log.info("Initialisation des données de l'application...");
+        // Les 5 branches de référence sont toujours créées (données structurelles).
         branchService.initializeBranches();
+
+        if (!seedDemoData) {
+            log.info("Données de démonstration désactivées (app.seed-demo-data=false). Démarrage avec une base vide.");
+            return;
+        }
         if (classRepository.count() > 0) {
             log.info("Les données existent déjà, initialisation ignorée.");
             return;

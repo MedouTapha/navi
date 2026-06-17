@@ -1,122 +1,231 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" dir="rtl" lang="ar">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      dir="rtl" lang="ar">
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1B6B3A">
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
     <title th:text="${title}">معهد الإمام نافع</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        // Injecte automatiquement le jeton CSRF dans toutes les requêtes fetch mutantes.
+        (function () {
+            var t = document.querySelector('meta[name="_csrf"]');
+            var h = document.querySelector('meta[name="_csrf_header"]');
+            if (!t || !h || !t.content || !h.content) return;
+            var token = t.content, header = h.content;
+            var orig = window.fetch;
+            window.fetch = function (input, init) {
+                init = init || {};
+                var method = (init.method || 'GET').toUpperCase();
+                if (method !== 'GET' && method !== 'HEAD') {
+                    var hdrs = init.headers || {};
+                    if (typeof Headers !== 'undefined' && hdrs instanceof Headers) {
+                        hdrs.set(header, token);
+                    } else {
+                        hdrs[header] = token;
+                    }
+                    init.headers = hdrs;
+                }
+                return orig.call(this, input, init);
+            };
+        })();
+    </script>
     <style>
         :root {
-            --primary:   #1B6B3A;
+            --primary:       #1B6B3A;
             --primary-light: #e8f5ee;
             --primary-dark:  #134d2a;
-            --accent:    #B8860B;
-            --accent-light: #fdf6e3;
-            --danger:    #C0392B;
-            --danger-light: #fdecea;
-            --text:      #1a2e1a;
-            --text-muted:#6c7569;
-            --bg:        #f4f6f4;
-            --white:     #ffffff;
-            --border:    #d8e4d8;
-            --shadow:    0 2px 8px rgba(27,107,58,.10);
+            --accent:        #B8860B;
+            --accent-light:  #fdf6e3;
+            --danger:        #C0392B;
+            --danger-light:  #fdecea;
+            --text:          #1a2e1a;
+            --text-muted:    #6c7569;
+            --bg:            #eef2ee;
+            --white:         #ffffff;
+            --border:        #dce6dc;
+            --shadow:        0 1px 3px rgba(20,60,35,.08), 0 4px 16px rgba(20,60,35,.06);
+            --shadow-lg:     0 8px 30px rgba(20,60,35,.12);
+            --radius:        12px;
+            --radius-sm:     8px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html { -webkit-text-size-adjust: 100%; }
+
         body {
-            font-family: 'Tajawal', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg);
             color: var(--text);
-            line-height: 1.8;
+            line-height: 1.7;
             direction: rtl;
             text-align: right;
+            min-height: 100vh;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 16px;
         }
 
-        /* ── Header ── */
-        .header {
-            background: var(--primary);
+        /* ───────────── Topbar ───────────── */
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: var(--white);
-            padding: 20px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,.15);
+            box-shadow: 0 2px 12px rgba(0,0,0,.18);
+            padding-top: env(safe-area-inset-top);
         }
 
-        .header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: .5px;
+        .topbar-inner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-top: 12px;
+            padding-bottom: 12px;
         }
 
-        /* ── Navigation ── */
-        .nav {
-            background: var(--white);
-            border-bottom: 3px solid var(--primary);
-            margin-bottom: 20px;
-            overflow-x: auto;
+        .brand { display: flex; flex-direction: column; line-height: 1.25; flex: 1; min-width: 0; }
+        .brand-title { font-size: 18px; font-weight: 800; letter-spacing: .2px; }
+        .brand-sub   { font-size: 12px; font-weight: 400; opacity: .85; }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             white-space: nowrap;
         }
+        .user-name {
+            font-size: 13px;
+            opacity: .92;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .user-name::before { content: "👤"; font-size: 13px; }
+        .btn-logout {
+            background: rgba(255,255,255,.16);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.35);
+            border-radius: 20px;
+            padding: 7px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,.28); }
 
+        /* Hamburger */
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            width: 42px;
+            height: 42px;
+            background: rgba(255,255,255,.14);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .nav-toggle span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #fff;
+            margin: 0 auto;
+            border-radius: 2px;
+            transition: transform .25s, opacity .25s;
+        }
+        body.nav-open .nav-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        body.nav-open .nav-toggle span:nth-child(2) { opacity: 0; }
+        body.nav-open .nav-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ───────────── Navigation ───────────── */
+        .nav {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
         .nav-links {
             display: flex;
             padding: 0;
             margin: 0;
             list-style: none;
+            gap: 2px;
         }
-
         .nav-links a {
-            padding: 14px 20px;
+            padding: 15px 18px;
             text-decoration: none;
             color: var(--text);
             display: block;
-            transition: color .2s, border-bottom-color .2s;
+            font-size: 14.5px;
+            font-weight: 500;
             border-bottom: 3px solid transparent;
-            margin-bottom: -3px;
-            font-size: 14px;
+            transition: color .15s, background .15s, border-color .15s;
+            white-space: nowrap;
         }
-
-        .nav-links a:hover,
+        .nav-links a:hover { color: var(--primary); background: var(--primary-light); }
         .nav-links a.active {
             color: var(--primary);
             border-bottom-color: var(--primary);
+            font-weight: 700;
         }
 
-        /* ── Cards ── */
+        /* ───────────── Cards ───────────── */
         .card {
             background: var(--white);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: var(--radius);
+            padding: 22px;
+            margin-bottom: 18px;
             box-shadow: var(--shadow);
-            border-top: 3px solid var(--primary);
+            border: 1px solid var(--border);
         }
-
         .card-header {
             font-size: 18px;
             font-weight: 700;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
-            color: var(--primary);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary-light);
+            color: var(--primary-dark);
         }
 
-        /* ── Buttons ── */
+        /* ───────────── Buttons ───────────── */
         .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 11px 20px;
+            border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
-            transition: background .2s, opacity .2s;
+            transition: background .2s, box-shadow .2s, transform .05s;
             border: none;
             cursor: pointer;
             font-size: 14px;
             font-family: inherit;
+            line-height: 1.2;
         }
+        .btn:active { transform: scale(.98); }
 
         .btn-primary   { background: var(--primary);  color: var(--white); }
         .btn-primary:hover { background: var(--primary-dark); }
@@ -125,194 +234,212 @@
         .btn-success:hover { background: var(--primary-dark); }
 
         .btn-danger    { background: var(--danger);   color: var(--white); }
-        .btn-danger:hover { opacity: .9; }
+        .btn-danger:hover { filter: brightness(.93); }
 
-        .btn-secondary { background: #6c757d; color: var(--white); }
-        .btn-secondary:hover { background: #5a6268; }
+        .btn-secondary { background: #eef2ee; color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: #e2e9e2; }
 
         .btn-accent    { background: var(--accent);   color: var(--white); }
-        .btn-accent:hover { opacity: .9; }
+        .btn-accent:hover { filter: brightness(.93); }
 
-        .btn-sm { padding: 6px 12px; font-size: 13px; }
+        .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
 
-        /* ── Table ── */
+        /* ───────────── Table ───────────── */
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
         }
-
         .table {
             width: 100%;
             border-collapse: collapse;
             background: var(--white);
             min-width: 600px;
         }
-
         .table th,
         .table td {
-            padding: 11px 12px;
+            padding: 12px 14px;
             text-align: right;
             border-bottom: 1px solid var(--border);
+            font-size: 14px;
         }
-
         .table th {
             background: var(--primary);
             color: var(--white);
-            font-weight: 600;
+            font-weight: 700;
             font-size: 13px;
         }
+        .table tbody tr:nth-child(even) td { background: #fafcfa; }
+        .table tbody tr:hover td { background: var(--primary-light); }
 
-        .table tr:hover td { background: var(--primary-light); }
-
-        /* ── Grid ── */
+        /* ───────────── Grid ───────────── */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 18px;
         }
-
         .financial-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 20px 0;
+            gap: 16px;
+            margin: 18px 0;
         }
 
         /* ── Financial blocks ── */
         .financial-block {
             padding: 20px;
-            border-radius: 8px;
+            border-radius: var(--radius);
             box-shadow: var(--shadow);
         }
-
-        .financial-block h4 { margin-bottom: 15px; font-size: 15px; }
+        .financial-block h4 { margin-bottom: 14px; font-size: 16px; }
         .financial-block p  { font-size: 14px; line-height: 1.8; margin: 7px 0; }
+        .financial-block table td { padding: 5px 0; }
 
         /* ── Balance block ── */
         .balance-block {
-            margin: 20px 0;
-            padding: 20px;
+            margin: 18px 0;
+            padding: 24px;
             text-align: center;
-            border-radius: 8px;
+            border-radius: var(--radius);
             box-shadow: var(--shadow);
         }
-
         .balance-block h3 { margin: 0; font-size: 17px; }
+        .balance-amount { font-size: 30px; font-weight: 800; margin: 10px 0; letter-spacing: .5px; }
 
-        .balance-amount {
-            font-size: 28px;
-            font-weight: 700;
-            margin: 10px 0;
-        }
-
-        /* ── Stats cards ── */
+        /* ───────────── Stats cards ───────────── */
         .stats-card {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: var(--white);
             padding: 20px;
-            border-radius: 8px;
+            border-radius: var(--radius);
             box-shadow: var(--shadow);
         }
+        .stats-card h3      { font-size: 13px; opacity: .9; margin-bottom: 8px; font-weight: 500; }
+        .stats-card .value  { font-size: 28px; font-weight: 800; }
 
-        .stats-card h3      { font-size: 13px; opacity: .85; margin-bottom: 10px; }
-        .stats-card .value  { font-size: 30px; font-weight: 700; }
-
-        /* ── Form ── */
+        /* ───────────── Form ───────────── */
         .form-group { margin-bottom: 18px; }
-
         .form-group label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 7px;
             font-weight: 600;
             color: var(--text);
             font-size: 14px;
         }
-
         .form-control {
             width: 100%;
-            padding: 10px 14px;
+            padding: 12px 14px;
             border: 1.5px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 15px;
             font-family: inherit;
-            transition: border-color .2s;
+            transition: border-color .2s, box-shadow .2s;
             background: var(--white);
+            color: var(--text);
         }
-
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
 
-        /* ── Badges ── */
+        /* ───────────── Badges ───────────── */
         .badge {
             display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
         }
-
-        .badge-success {
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            border: 1px solid #b8d8c8;
-        }
-
-        .badge-warning {
-            background: var(--accent-light);
-            color: #7a5800;
-            border: 1px solid #e8d080;
-        }
-
-        .badge-info {
-            background: #e8f0ff;
-            color: #2c4a8a;
-            border: 1px solid #b8ccf0;
-        }
+        .badge-success { background: var(--primary-light); color: var(--primary-dark); border: 1px solid #b8d8c8; }
+        .badge-warning { background: var(--accent-light);  color: #7a5800; border: 1px solid #e8d080; }
+        .badge-info    { background: var(--primary-light); color: var(--primary-dark); border: 1px solid #b8d8c8; }
+        .badge-danger  { background: var(--danger-light);  color: var(--danger); border: 1px solid #f0b8b2; }
 
         /* ── Semantic text colors ── */
-        .text-success { color: var(--primary)  !important; }
-        .text-danger  { color: var(--danger)   !important; }
-        .text-accent  { color: var(--accent)   !important; }
+        .text-success { color: var(--primary)    !important; }
+        .text-danger  { color: var(--danger)     !important; }
+        .text-accent  { color: var(--accent)     !important; }
         .text-muted   { color: var(--text-muted) !important; }
 
-        /* ── Responsive ── */
+        /* ───────────── Responsive ───────────── */
+        @media (max-width: 880px) {
+            .nav-toggle { display: flex; }
+            .brand-title { font-size: 16px; }
+            .brand-sub { display: none; }
+            .user-name { display: none; }
+
+            .nav {
+                margin-bottom: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height .3s ease;
+                box-shadow: none;
+                border-bottom: 1px solid var(--border);
+            }
+            body.nav-open .nav { max-height: 70vh; overflow-y: auto; box-shadow: var(--shadow); }
+            .nav-links { flex-direction: column; gap: 0; }
+            .nav-links a {
+                padding: 15px 18px;
+                border-bottom: 1px solid var(--border);
+                border-right: 4px solid transparent;
+            }
+            .nav-links a.active {
+                border-bottom-color: var(--border);
+                border-right-color: var(--primary);
+                background: var(--primary-light);
+            }
+        }
+
         @media (max-width: 768px) {
-            .container { padding: 10px; }
-            .header h1 { font-size: 18px; }
-            .table { font-size: 13px; }
-            .table th, .table td { padding: 8px; }
-            .grid { grid-template-columns: 1fr; }
+            .container { padding: 12px; }
+            .table th, .table td { padding: 10px; font-size: 13px; }
+            .grid { grid-template-columns: 1fr; gap: 12px; }
             .financial-grid { grid-template-columns: 1fr; gap: 12px; margin: 12px 0; }
-            .btn { padding: 12px 18px; font-size: 14px; min-height: 44px; }
-            .btn-sm { padding: 8px 14px; font-size: 13px; min-height: 40px; }
-            .nav-links a { padding: 12px 14px; font-size: 13px; }
-            .card { padding: 14px; }
+            .btn { padding: 12px 18px; min-height: 46px; }
+            .btn-sm { padding: 9px 14px; font-size: 13px; min-height: 0; }
+            .card { padding: 16px; }
             .card-header { font-size: 16px; }
-            .balance-amount { font-size: 22px; }
+            .balance-amount { font-size: 24px; }
+            .stats-card .value { font-size: 24px; }
         }
     </style>
 </head>
 
 <body>
-<div th:fragment="header">
-    <div class="header">
-        <div class="container">
-            <h1>معهد الإمام نافع لتعليم القرآن الكريم وعلومه</h1>
+<div th:fragment="header" class="app-header">
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <button class="nav-toggle" type="button" aria-label="القائمة"
+                    onclick="document.body.classList.toggle('nav-open')">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="brand">
+                <span class="brand-title">معهد الإمام نافع</span>
+                <span class="brand-sub">لتعليم القرآن الكريم وعلومه</span>
+            </div>
+            <div class="topbar-user">
+                <span sec:authentication="name" class="user-name">المستخدم</span>
+                <form th:action="@{/logout}" method="post" style="margin:0;">
+                    <button type="submit" class="btn-logout">خروج</button>
+                </form>
+            </div>
         </div>
-    </div>
+    </header>
     <nav class="nav">
-        <ul class="nav-links">
-            <li><a href="/dashboard"      th:classappend="${activePage == 'dashboard'} ? 'active'">لوحة التحكم</a></li>
-            <li><a href="/branches"       th:classappend="${activePage == 'branches'}  ? 'active'">الفروع</a></li>
-            <li><a href="/classes"        th:classappend="${activePage == 'classes'}   ? 'active'">الفصول</a></li>
-            <li><a href="/donors"         th:classappend="${activePage == 'donors'}     ? 'active'">المتبرعون</a></li>
-            <li><a href="/retards"        th:classappend="${activePage == 'retards'}    ? 'active'" style="color:var(--danger);">المتأخرون</a></li>
-            <li><a href="/projection"     th:classappend="${activePage == 'projection'} ? 'active'">التوقعات</a></li>
-            <li><a href="/rapport-mensuel" th:classappend="${activePage == 'rapport'}  ? 'active'">التقرير الشهري</a></li>
-        </ul>
+        <div class="container" style="padding-top:0; padding-bottom:0;">
+            <ul class="nav-links">
+                <li><a href="/dashboard"       th:classappend="${activePage == 'dashboard'}  ? 'active'">لوحة التحكم</a></li>
+                <li><a href="/branches"        th:classappend="${activePage == 'branches'}   ? 'active'">الفروع</a></li>
+                <li><a href="/classes"         th:classappend="${activePage == 'classes'}    ? 'active'">الفصول</a></li>
+                <li><a href="/donors"          th:classappend="${activePage == 'donors'}     ? 'active'">المتبرعون</a></li>
+                <li><a href="/retards"         th:classappend="${activePage == 'retards'}    ? 'active'" style="color:var(--danger);">المتأخرون</a></li>
+                <li><a href="/projection"      th:classappend="${activePage == 'projection'} ? 'active'">التوقعات</a></li>
+                <li><a href="/rapport-mensuel" th:classappend="${activePage == 'rapport'}    ? 'active'">التقرير الشهري</a></li>
+            </ul>
+        </div>
     </nav>
 </div>
 </body>

@@ -1,11 +1,15 @@
 package com.navi.education.controller.web;
 
+import com.navi.education.dto.request.DonorRequest;
+import com.navi.education.dto.request.EducationClassRequest;
 import com.navi.education.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
@@ -27,7 +31,12 @@ public class WebViewController {
 
     @GetMapping("/")
     public String index() {
-        return "redirect:/branches";
+        return "redirect:/dashboard";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 
     @GetMapping("/branches")
@@ -62,6 +71,13 @@ public class WebViewController {
         return "classes/form";
     }
 
+    @PostMapping("/classes/new")
+    public String createClass(@ModelAttribute EducationClassRequest request) {
+        request.setNameFr(request.getNameAr());
+        var created = classService.createClass(request);
+        return "redirect:/classes/" + created.getId();
+    }
+
     @GetMapping("/classes/{id}")
     public String viewClass(@PathVariable Long id, Model model) {
         model.addAttribute("class", classService.getClassById(id));
@@ -72,12 +88,27 @@ public class WebViewController {
         return "classes/view";
     }
 
+    @GetMapping("/classes/{id}/years")
+    public String classFinancialYears(@PathVariable Long id, Model model) {
+        model.addAttribute("class", classService.getClassById(id));
+        model.addAttribute("years", classService.getFinancialYearsHistory(id));
+        model.addAttribute("activePage", "classes");
+        return "classes/years";
+    }
+
     @GetMapping("/classes/{id}/edit")
     public String editClass(@PathVariable Long id, Model model) {
         model.addAttribute("class", classService.getClassById(id));
         model.addAttribute("branches", branchService.getAllBranches());
         model.addAttribute("activePage", "classes");
         return "classes/form";
+    }
+
+    @PostMapping("/classes/{id}/edit")
+    public String updateClass(@PathVariable Long id, @ModelAttribute EducationClassRequest request) {
+        request.setNameFr(request.getNameAr());
+        classService.updateClass(id, request);
+        return "redirect:/classes/" + id;
     }
 
     @GetMapping("/donors")
@@ -93,11 +124,18 @@ public class WebViewController {
         return "donors/form";
     }
 
+    @PostMapping("/donors/new")
+    public String createDonor(@ModelAttribute DonorRequest request) {
+        var created = donorService.createDonor(request);
+        return "redirect:/donors/" + created.getId();
+    }
+
     @GetMapping("/donors/{id}")
     public String viewDonor(@PathVariable Long id, Model model) {
         model.addAttribute("donor", donorService.getDonorById(id));
         model.addAttribute("commitments", commitmentService.getCommitmentsByDonor(id));
         model.addAttribute("payments", paymentService.getPaymentsByDonor(id));
+        model.addAttribute("classes", classService.getAllClasses());
         model.addAttribute("activePage", "donors");
         return "donors/view";
     }
@@ -107,6 +145,12 @@ public class WebViewController {
         model.addAttribute("donor", donorService.getDonorById(id));
         model.addAttribute("activePage", "donors");
         return "donors/form";
+    }
+
+    @PostMapping("/donors/{id}/edit")
+    public String updateDonor(@PathVariable Long id, @ModelAttribute DonorRequest request) {
+        donorService.updateDonor(id, request);
+        return "redirect:/donors/" + id;
     }
 
     @GetMapping("/rapport-mensuel")

@@ -4,7 +4,7 @@ public enum PaymentMethod {
     BANKILY("Bankily"),
     SEDAD("Sedad"),
     MASRVI("Masrvi"),
-    CASH("Cash");
+    CASH("نقداً");
 
     private final String displayName;
 

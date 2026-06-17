@@ -1,0 +1,9 @@
+target/
+.git/
+.idea/
+*.iml
+logs/
+*.env
+!deploy/navi.env.example
+*.md
+.mvn/

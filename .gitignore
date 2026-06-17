@@ -40,3 +40,11 @@ build/
 
 ### H2 Database ###
 *.db
+
+### Logs directory ###
+logs/
+
+### Secrets / environnement local ###
+navi.env
+*.env
+!deploy/navi.env.example
