@@ -1,0 +1,52 @@
+# ──────────────────────────────────────────────────────────────────────
+# Blueprint Render — déploie automatiquement le service web + PostgreSQL.
+# Mode d'emploi : voir DEPLOYMENT-RENDER.md
+# ──────────────────────────────────────────────────────────────────────
+
+databases:
+  - name: navi-db
+    plan: free
+    region: frankfurt
+    databaseName: navi_education
+    user: navi_user
+
+services:
+  - type: web
+    name: navi-education
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    # /login est public (200) → bon point de contrôle de santé
+    healthCheckPath: /login
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SEED_DEMO_DATA
+        value: "false"
+      # Connexion à la base PostgreSQL créée ci-dessus
+      - key: DB_HOST
+        fromDatabase:
+          name: navi-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: navi-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: navi-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: navi-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: navi-db
+          property: password
+      # Compte administrateur — à saisir dans le tableau de bord Render (non stocké dans le dépôt)
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false
