@@ -1,7 +1,9 @@
 package com.navi.education.controller.web;
 
+import com.navi.education.model.entity.AnnualCommitment;
 import com.navi.education.model.entity.Donor;
 import com.navi.education.model.entity.EducationClass;
+import com.navi.education.repository.AnnualCommitmentRepository;
 import com.navi.education.repository.BranchRepository;
 import com.navi.education.repository.DonorRepository;
 import com.navi.education.repository.EducationClassRepository;
@@ -11,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,6 +39,9 @@ class WebViewControllerIntegrationTest {
 
     @Autowired
     private BranchRepository branchRepository;
+
+    @Autowired
+    private AnnualCommitmentRepository commitmentRepository;
 
     private Long anyClassId() {
         return classRepository.findAll().get(0).getId();
@@ -170,5 +176,39 @@ class WebViewControllerIntegrationTest {
                 .andExpect(view().name("classes/years"))
                 .andExpect(model().attributeExists("class"))
                 .andExpect(model().attributeExists("years"));
+    }
+
+    // ───────────────────────── Projections (régression) ─────────────────────────
+    // Régression : T(java.math.BigDecimal).valueOf(100000) dans projection.html était
+    // ambigu pour SpEL (valueOf(long) vs valueOf(double)) et levait EL1033E à l'exécution.
+
+    @Test
+    @WithMockUser
+    void projectionPage_rendersWithoutError() throws Exception {
+        mockMvc.perform(get("/projection"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("projection"))
+                .andExpect(model().attributeExists("months"));
+    }
+
+    // ───────────────────────── Détail donateur (régression) ──────────────────────
+    // Régression : th:onclick="|openPaymentModal(${commitment.id}, '${commitment.className}', ...)|"
+    // violait la restriction Thymeleaf 3.1 sur les attributs d'événement (seuls nombres/booléens
+    // sont autorisés) dès qu'un engagement non soldé était affiché → page entière en erreur.
+
+    @Test
+    @WithMockUser
+    @Transactional
+    void donorViewPage_withUnpaidCommitment_rendersWithoutError() throws Exception {
+        AnnualCommitment unpaid = commitmentRepository.findAll().stream()
+                .filter(c -> !c.isFullyPaid())
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "Aucun engagement non soldé dans les données de test : impossible de couvrir ce cas"));
+        Long donorId = unpaid.getDonor().getId();
+
+        mockMvc.perform(get("/donors/{id}", donorId))
+                .andExpect(status().isOk())
+                .andExpect(view().name("donors/view"));
     }
 }

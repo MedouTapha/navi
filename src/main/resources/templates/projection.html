@@ -36,7 +36,7 @@
              class="card"
              th:style="${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0}
                 ? 'border-top-color:var(--danger);'
-                : (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).valueOf(100000)) < 0}
+                : (${m.cumulativeBalance.compareTo(new java.math.BigDecimal(100000)) < 0}
                     ? 'border-top-color:var(--accent);'
                     : 'border-top-color:var(--primary);')">
 
@@ -47,12 +47,12 @@
                 <span class="badge"
                       th:style="${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0}
                           ? 'background:var(--danger-light);color:var(--danger);border:1px solid var(--danger);'
-                          : (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).valueOf(100000)) < 0}
+                          : (${m.cumulativeBalance.compareTo(new java.math.BigDecimal(100000)) < 0}
                               ? 'background:var(--accent-light);color:var(--accent);border:1px solid var(--accent);'
                               : 'background:var(--primary-light);color:var(--primary);border:1px solid var(--primary);')"
                       th:text="${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0}
                           ? 'عجز محتمل'
-                          : (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).valueOf(100000)) < 0}
+                          : (${m.cumulativeBalance.compareTo(new java.math.BigDecimal(100000)) < 0}
                               ? 'تحت المراقبة'
                               : 'مريح')">
                     حالة
@@ -81,10 +81,10 @@
 
             <!-- الرصيد التراكمي -->
             <div style="margin-top:14px; padding:12px; border-radius:6px; text-align:center;"
-                 th:style="'margin-top:14px; padding:12px; border-radius:6px; text-align:center; background:' + (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0} ? 'var(--danger-light)' : (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).valueOf(100000)) < 0} ? 'var(--accent-light)' : 'var(--primary-light)'))">
+                 th:style="'margin-top:14px; padding:12px; border-radius:6px; text-align:center; background:' + (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0} ? 'var(--danger-light)' : (${m.cumulativeBalance.compareTo(new java.math.BigDecimal(100000)) < 0} ? 'var(--accent-light)' : 'var(--primary-light)'))">
                 <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">الرصيد التراكمي</div>
                 <div style="font-size:20px; font-weight:700;" dir="ltr"
-                     th:style="'font-size:20px; font-weight:700; color:' + (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0} ? 'var(--danger)' : (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).valueOf(100000)) < 0} ? 'var(--accent)' : 'var(--primary)'))"
+                     th:style="'font-size:20px; font-weight:700; color:' + (${m.cumulativeBalance.compareTo(T(java.math.BigDecimal).ZERO) < 0} ? 'var(--danger)' : (${m.cumulativeBalance.compareTo(new java.math.BigDecimal(100000)) < 0} ? 'var(--accent)' : 'var(--primary)'))"
                      th:text="${#numbers.formatDecimal(m.cumulativeBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU'">0 MRU</div>
             </div>
         </div>

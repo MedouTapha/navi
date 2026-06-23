@@ -35,7 +35,7 @@
                     <td dir="ltr" style="color:var(--danger); font-weight:600;"
                         th:text="${donor.remainingBalance.compareTo(T(java.math.BigDecimal).ZERO) > 0} ? ${#numbers.formatDecimal(donor.remainingBalance, 0, 'COMMA', 0, 'POINT')} + ' MRU' : '✓'">0 MRU</td>
                     <td>
-                        <div th:with="pct=${donor.totalCommitments.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? donor.totalPaid.multiply(T(java.math.BigDecimal).valueOf(100)).divide(donor.totalCommitments, 0, T(java.math.RoundingMode).HALF_UP).min(T(java.math.BigDecimal).valueOf(100)) : T(java.math.BigDecimal).ZERO}">
+                        <div th:with="pct=${donor.totalCommitments.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? donor.totalPaid.multiply(new java.math.BigDecimal(100)).divide(donor.totalCommitments, 0, T(java.math.RoundingMode).HALF_UP).min(new java.math.BigDecimal(100)) : T(java.math.BigDecimal).ZERO}">
                             <div style="background:#d0e8d8;border-radius:4px;height:8px;overflow:hidden;margin-bottom:2px;">
                                 <div th:style="'width:' + ${pct} + '%;background:' + (${pct.intValue() >= 100} ? '#1B6B3A' : (${pct.intValue() >= 50} ? '#B8860B' : '#C0392B')) + ';height:100%;'"></div>
                             </div>
