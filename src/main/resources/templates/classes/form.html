@@ -8,6 +8,10 @@
     <div class="card">
         <h2 class="card-header" th:text="${class != null} ? 'تعديل الفصل' : 'فصل جديد'">نموذج الفصل</h2>
 
+        <div th:if="${param.error}" class="alert alert-error">
+            يرجى التحقق من المعلومات المدخلة، بعض الحقول غير صحيحة
+        </div>
+
         <form th:action="${class != null} ? @{/classes/{id}/edit(id=${class.id})} : @{/classes/new}"
               method="post">
 

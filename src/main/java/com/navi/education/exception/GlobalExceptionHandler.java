@@ -1,5 +1,13 @@
 package com.navi.education.exception;
 
+import com.navi.education.controller.AnnualCommitmentController;
+import com.navi.education.controller.BranchController;
+import com.navi.education.controller.DonorController;
+import com.navi.education.controller.EducationClassController;
+import com.navi.education.controller.ExpenseController;
+import com.navi.education.controller.ExtraDonationController;
+import com.navi.education.controller.PaymentController;
+import com.navi.education.controller.ReportController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +20,23 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestControllerAdvice
+/**
+ * Limité aux contrôleurs REST (assignableTypes) : les pages Thymeleaf de
+ * WebViewController doivent garder le rendu d'erreur HTML par défaut de
+ * Spring Boot (templates/error.html), pas une réponse JSON. Cette même
+ * restriction fait que les exceptions sans contrôleur résolu (404 sur une
+ * route inexistante) ne sont plus interceptées ici non plus.
+ */
+@RestControllerAdvice(assignableTypes = {
+        BranchController.class,
+        EducationClassController.class,
+        DonorController.class,
+        ExpenseController.class,
+        AnnualCommitmentController.class,
+        PaymentController.class,
+        ReportController.class,
+        ExtraDonationController.class
+})
 @Slf4j
 public class GlobalExceptionHandler {
 

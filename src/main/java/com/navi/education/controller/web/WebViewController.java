@@ -3,9 +3,12 @@ package com.navi.education.controller.web;
 import com.navi.education.dto.request.DonorRequest;
 import com.navi.education.dto.request.EducationClassRequest;
 import com.navi.education.service.*;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +30,7 @@ public class WebViewController {
     private final PaymentService paymentService;
     private final DashboardService dashboardService;
     private final MonthlyReportService monthlyReportService;
+    private final Validator validator;
 
     @GetMapping("/")
     public String index() {
@@ -72,7 +76,12 @@ public class WebViewController {
 
     @PostMapping("/classes/new")
     public String createClass(@ModelAttribute EducationClassRequest request) {
+        // nameFr est dérivé de nameAr (le formulaire ne saisit que l'arabe) : la validation
+        // doit donc s'exécuter après cette dérivation, pas via @Valid au moment du binding.
         request.setNameFr(request.getNameAr());
+        if (!validator.validate(request).isEmpty()) {
+            return "redirect:/classes/new?error";
+        }
         var created = classService.createClass(request);
         return "redirect:/classes/" + created.getId();
     }
@@ -106,6 +115,9 @@ public class WebViewController {
     @PostMapping("/classes/{id}/edit")
     public String updateClass(@PathVariable Long id, @ModelAttribute EducationClassRequest request) {
         request.setNameFr(request.getNameAr());
+        if (!validator.validate(request).isEmpty()) {
+            return "redirect:/classes/" + id + "/edit?error";
+        }
         classService.updateClass(id, request);
         return "redirect:/classes/" + id;
     }
@@ -124,7 +136,10 @@ public class WebViewController {
     }
 
     @PostMapping("/donors/new")
-    public String createDonor(@ModelAttribute DonorRequest request) {
+    public String createDonor(@Valid @ModelAttribute DonorRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "redirect:/donors/new?error";
+        }
         var created = donorService.createDonor(request);
         return "redirect:/donors/" + created.getId();
     }
@@ -147,7 +162,11 @@ public class WebViewController {
     }
 
     @PostMapping("/donors/{id}/edit")
-    public String updateDonor(@PathVariable Long id, @ModelAttribute DonorRequest request) {
+    public String updateDonor(@PathVariable Long id, @Valid @ModelAttribute DonorRequest request,
+                               BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "redirect:/donors/" + id + "/edit?error";
+        }
         donorService.updateDonor(id, request);
         return "redirect:/donors/" + id;
     }

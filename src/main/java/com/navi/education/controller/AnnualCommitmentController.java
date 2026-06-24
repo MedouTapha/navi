@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/commitments")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class AnnualCommitmentController {
 
     private final AnnualCommitmentService commitmentService;

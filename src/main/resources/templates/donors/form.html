@@ -8,6 +8,10 @@
     <div class="card">
         <h2 class="card-header" th:text="${donor != null} ? 'تعديل المتبرع' : 'متبرع جديد'">نموذج المتبرع</h2>
 
+        <div th:if="${param.error}" class="alert alert-error">
+            يرجى التحقق من المعلومات المدخلة، بعض الحقول غير صحيحة
+        </div>
+
         <form th:action="${donor != null} ? @{/donors/{id}/edit(id=${donor.id})} : @{/donors/new}"
               method="post">
 
