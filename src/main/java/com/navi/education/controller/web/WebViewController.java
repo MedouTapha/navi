@@ -27,7 +27,6 @@ public class WebViewController {
     private final PaymentService paymentService;
     private final DashboardService dashboardService;
     private final MonthlyReportService monthlyReportService;
-    private final ProjectionService projectionService;
 
     @GetMapping("/")
     public String index() {
@@ -189,13 +188,6 @@ public class WebViewController {
         model.addAttribute("today", LocalDate.now());
         model.addAttribute("activePage", "retards");
         return "retards";
-    }
-
-    @GetMapping("/projection")
-    public String projection(Model model) {
-        model.addAttribute("months", projectionService.getProjection());
-        model.addAttribute("activePage", "projection");
-        return "projection";
     }
 
     private LocalDate parseDate(String dateStr) {

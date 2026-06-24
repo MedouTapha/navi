@@ -178,19 +178,6 @@ class WebViewControllerIntegrationTest {
                 .andExpect(model().attributeExists("years"));
     }
 
-    // ───────────────────────── Projections (régression) ─────────────────────────
-    // Régression : T(java.math.BigDecimal).valueOf(100000) dans projection.html était
-    // ambigu pour SpEL (valueOf(long) vs valueOf(double)) et levait EL1033E à l'exécution.
-
-    @Test
-    @WithMockUser
-    void projectionPage_rendersWithoutError() throws Exception {
-        mockMvc.perform(get("/projection"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("projection"))
-                .andExpect(model().attributeExists("months"));
-    }
-
     // ───────────────────────── Détail donateur (régression) ──────────────────────
     // Régression : th:onclick="|openPaymentModal(${commitment.id}, '${commitment.className}', ...)|"
     // violait la restriction Thymeleaf 3.1 sur les attributs d'événement (seuls nombres/booléens
