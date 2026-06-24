@@ -123,7 +123,7 @@
         </div>
 
         <div th:each="branch, branchStat : ${dashboard.branches}" class="branch-accordion">
-            <div class="branch-header" th:onclick="|toggleBranch('branch-' + ${branchStat.index})|">
+            <div class="branch-header" th:data-target="|branch-${branchStat.index}|">
                 <div class="branch-header-name">
                     <span class="toggle-icon" th:id="|icon-branch-${branchStat.index}|">▶</span>
                     <strong th:text="${branch.nameAr}">الفرع</strong>
@@ -272,6 +272,14 @@ function toggleBranch(id) {
         icon.textContent = '▶';
     }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.branch-header').forEach(function (header) {
+        header.addEventListener('click', function () {
+            toggleBranch(this.dataset.target);
+        });
+    });
+});
 </script>
 
 </body>

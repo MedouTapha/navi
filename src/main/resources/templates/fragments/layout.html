@@ -333,7 +333,8 @@
             padding: 12px 14px;
             border: 1.5px solid var(--border);
             border-radius: 10px;
-            font-size: 15px;
+            /* 16px : évite le zoom automatique des champs au focus sur iOS Safari */
+            font-size: 16px;
             font-family: inherit;
             transition: border-color .2s, box-shadow .2s;
             background: var(--white);
@@ -363,6 +364,46 @@
         .text-danger  { color: var(--danger)     !important; }
         .text-accent  { color: var(--accent)     !important; }
         .text-muted   { color: var(--text-muted) !important; }
+
+        /* ───────────── Modales ───────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-box {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 26px;
+            width: 100%;
+            max-width: 440px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Indice de défilement horizontal sur les tableaux qui débordent */
+        .table-wrapper.is-scrollable { position: relative; }
+        .table-wrapper.is-scrollable::after {
+            content: "⟷";
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1px 7px;
+            opacity: .9;
+            pointer-events: none;
+        }
+        .table-wrapper.is-scrollable.scrolled::after { display: none; }
 
         /* ───────────── Responsive ───────────── */
         @media (max-width: 880px) {
@@ -406,6 +447,60 @@
             .stats-card .value { font-size: 24px; }
         }
     </style>
+
+    <script>
+        // Améliorations d'utilisabilité communes à toutes les pages.
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // 1. Fermer le menu mobile en touchant à l'extérieur.
+            document.addEventListener('click', function (e) {
+                if (!document.body.classList.contains('nav-open')) return;
+                var nav = document.querySelector('.nav');
+                var toggle = document.querySelector('.nav-toggle');
+                if (nav && toggle && !nav.contains(e.target) && !toggle.contains(e.target)) {
+                    document.body.classList.remove('nav-open');
+                }
+            });
+
+            // 2. Empêcher le double envoi : désactiver le bouton après soumission.
+            document.querySelectorAll('form').forEach(function (form) {
+                form.addEventListener('submit', function () {
+                    var btn = form.querySelector('button[type="submit"], button:not([type])');
+                    if (!btn || btn.dataset.busy === 'on') return;
+                    // setTimeout(0) : laisse le navigateur sérialiser le formulaire d'abord.
+                    setTimeout(function () {
+                        btn.dataset.busy = 'on';
+                        btn.disabled = true;
+                        btn.dataset.label = btn.textContent;
+                        btn.textContent = '…';
+                    }, 0);
+                });
+            });
+
+            // 3. Modales : fermer en touchant le fond ou via la touche Échap.
+            document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
+                overlay.addEventListener('click', function (e) {
+                    if (e.target === overlay) overlay.style.display = 'none';
+                });
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'Escape') return;
+                document.querySelectorAll('.modal-overlay').forEach(function (o) {
+                    if (getComputedStyle(o).display !== 'none') o.style.display = 'none';
+                });
+            });
+
+            // 4. Indice de défilement sur les tableaux trop larges pour l'écran.
+            document.querySelectorAll('.table-wrapper').forEach(function (w) {
+                if (w.scrollWidth > w.clientWidth + 4) {
+                    w.classList.add('is-scrollable');
+                    w.addEventListener('scroll', function () {
+                        w.classList.toggle('scrolled', Math.abs(w.scrollLeft) > 4);
+                    }, { passive: true });
+                }
+            });
+        });
+    </script>
 </head>
 
 <body>
