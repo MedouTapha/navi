@@ -9,8 +9,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.multipart.support.MultipartFilter;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -48,9 +52,30 @@ public class SecurityConfig {
                 )
                 // La console H2 (profil dev uniquement) utilise des frames + pas de jeton CSRF
                 .csrf(csrf -> csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**")))
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+                .exceptionHandling(handling -> handling.accessDeniedHandler(accessDeniedHandler()));
 
         return http.build();
+    }
+
+    /**
+     * Un jeton CSRF devient invalide dès que la session qui l'a émis disparaît
+     * (redémarrage du serveur, expiration après inactivité) : l'utilisateur
+     * avait une page de formulaire (souvent la connexion) déjà ouverte. Sans ce
+     * gestionnaire, CsrfFilter lève l'exception AVANT que
+     * AnonymousAuthenticationFilter ne s'exécute, donc ExceptionTranslationFilter
+     * la traite comme un accès refusé (403) plutôt qu'un défaut d'authentification
+     * — on la redirige donc vers la connexion avec un message clair.
+     */
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            if (accessDeniedException instanceof CsrfException) {
+                response.sendRedirect(request.getContextPath() + "/login?expired");
+            } else {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            }
+        };
     }
 
     @Bean

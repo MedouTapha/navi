@@ -15,6 +15,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -81,12 +82,17 @@ class WebViewControllerIntegrationTest {
 
     @Test
     @WithMockUser
-    void postWithoutCsrf_isForbidden() throws Exception {
+    void postWithoutCsrf_isRejectedAndRedirectedToLogin() throws Exception {
+        long before = donorRepository.count();
+
         mockMvc.perform(post("/donors/new")
                         .param("firstName", "بدون")
                         .param("lastName", "رمز")
                         .param("telephone", "22000000"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login?expired"));
+
+        assertEquals(before, donorRepository.count());
     }
 
     // ─────────────────────── Création donateur ──────────────────────

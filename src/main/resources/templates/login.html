@@ -102,6 +102,9 @@
     <div th:if="${param.logout}" class="alert alert-success">
         تم تسجيل الخروج بنجاح
     </div>
+    <div th:if="${param.expired}" class="alert alert-error">
+        انتهت صلاحية الجلسة، يرجى إعادة تسجيل الدخول
+    </div>
 
     <form th:action="@{/login}" method="post">
         <div class="form-group">
