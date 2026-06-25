@@ -107,6 +107,13 @@
             <version>4.0.5</version>
         </dependency>
 
+        <!-- Apache POI : génération et lecture des classeurs Excel (.xlsx) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
+
         <!-- MapStruct for DTO mapping -->
         <dependency>
             <groupId>org.mapstruct</groupId>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('استيراد البيانات')}"></head>
+<body>
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<div class="container">
+
+    <!-- Mode d'emploi -->
+    <div class="card">
+        <h2 class="card-header">📥 استيراد البيانات من ملف Excel</h2>
+        <p style="color:var(--text-muted); line-height:1.9; margin-bottom:18px;">
+            حمّل نموذج Excel، املأ الأوراق التي تحتاجها (الفصول، المتبرعون، الالتزامات، المدفوعات،
+            المصروفات، الهبات)، ثم ارفع الملف هنا. لن يُحفظ أي شيء إلا إذا كان الملف صحيحاً بالكامل،
+            وستظهر لك قائمة الأخطاء بالورقة والسطر إن وُجدت.
+        </p>
+
+        <div style="display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start;">
+            <!-- Étape 1 -->
+            <div style="flex:1; min-width:240px;">
+                <h3 style="font-size:15px; margin-bottom:10px;">١. حمّل النموذج</h3>
+                <a href="/import/template" class="btn btn-accent">⬇ تحميل نموذج Excel</a>
+            </div>
+
+            <!-- Étape 2 -->
+            <div style="flex:1; min-width:240px;">
+                <h3 style="font-size:15px; margin-bottom:10px;">٢. ارفع الملف بعد تعبئته</h3>
+                <form th:action="@{/import}" method="post" enctype="multipart/form-data"
+                      style="display:flex; flex-direction:column; gap:12px;">
+                    <input type="file" name="file" accept=".xlsx" required
+                           class="form-control" style="padding:8px;" />
+                    <button type="submit" class="btn btn-primary">رفع واستيراد</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Erreur de lecture du fichier -->
+    <div th:if="${uploadError}" class="card">
+        <div class="alert alert-error" th:text="${uploadError}">خطأ</div>
+    </div>
+
+    <!-- Résultat : succès -->
+    <div th:if="${result != null and result.success}" class="card">
+        <div class="alert alert-success">
+            ✅ تم استيراد البيانات بنجاح — أُضيف
+            <strong th:text="${result.totalCreated}">0</strong> سجلّاً.
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr><th>الفئة</th><th>عدد السجلات المُضافة</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${result.created}">
+                    <td th:text="${entry.key}">-</td>
+                    <td style="font-weight:600;" th:text="${entry.value}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${not #lists.isEmpty(result.warnings)}" style="margin-top:16px;">
+            <h3 style="font-size:14px; color:var(--accent); margin-bottom:8px;">تنبيهات:</h3>
+            <ul style="padding-inline-start:20px; color:var(--text-muted); line-height:1.8;">
+                <li th:each="w : ${result.warnings}" th:text="${w}">-</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Résultat : erreurs (rien n'a été enregistré) -->
+    <div th:if="${result != null and not result.success}" class="card">
+        <div class="alert alert-error">
+            ⛔ لم يتم حفظ أي بيانات. صحّح الأخطاء التالية في الملف ثم أعد رفعه.
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr><th>الورقة</th><th>السطر</th><th>الخطأ</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="err : ${result.errors}">
+                    <td th:text="${err.sheet}">-</td>
+                    <td th:text="${err.row}">-</td>
+                    <td th:text="${err.message}">-</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${not #lists.isEmpty(result.warnings)}" style="margin-top:16px;">
+            <h3 style="font-size:14px; color:var(--accent); margin-bottom:8px;">تنبيهات:</h3>
+            <ul style="padding-inline-start:20px; color:var(--text-muted); line-height:1.8;">
+                <li th:each="w : ${result.warnings}" th:text="${w}">-</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
