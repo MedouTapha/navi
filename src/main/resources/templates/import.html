@@ -8,7 +8,7 @@
 
     <!-- Mode d'emploi -->
     <div class="card">
-        <h2 class="card-header">📥 استيراد البيانات من ملف Excel</h2>
+        <h2 class="card-header">استيراد البيانات من ملف Excel</h2>
         <p style="color:var(--text-muted); line-height:1.9; margin-bottom:18px;">
             حمّل نموذج Excel، املأ الأوراق التي تحتاجها (الفصول، المتبرعون، الالتزامات، المدفوعات،
             المصروفات، الهبات)، ثم ارفع الملف هنا. لن يُحفظ أي شيء إلا إذا كان الملف صحيحاً بالكامل،
@@ -19,7 +19,7 @@
             <!-- Étape 1 -->
             <div style="flex:1; min-width:240px;">
                 <h3 style="font-size:15px; margin-bottom:10px;">١. حمّل النموذج</h3>
-                <a href="/import/template" class="btn btn-accent">⬇ تحميل نموذج Excel</a>
+                <a href="/import/template" class="btn btn-accent">تحميل نموذج Excel</a>
             </div>
 
             <!-- Étape 2 -->
@@ -43,7 +43,7 @@
     <!-- Résultat : succès -->
     <div th:if="${result != null and result.success}" class="card">
         <div class="alert alert-success">
-            ✅ تم استيراد البيانات بنجاح — أُضيف
+            تم استيراد البيانات بنجاح — أُضيف
             <strong th:text="${result.totalCreated}">0</strong> سجلّاً.
         </div>
         <div class="table-wrapper">
@@ -70,7 +70,7 @@
     <!-- Résultat : erreurs (rien n'a été enregistré) -->
     <div th:if="${result != null and not result.success}" class="card">
         <div class="alert alert-error">
-            ⛔ لم يتم حفظ أي بيانات. صحّح الأخطاء التالية في الملف ثم أعد رفعه.
+            لم يتم حفظ أي بيانات. صحّح الأخطاء التالية في الملف ثم أعد رفعه.
         </div>
         <div class="table-wrapper">
             <table class="table">

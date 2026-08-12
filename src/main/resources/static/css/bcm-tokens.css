@@ -1,0 +1,68 @@
+/* ============================================================================
+   Charte BMCI / BCM — jetons de conception (source de vérité)
+   Reconstruit d'après la spécification du design system BMCI :
+   vert institutionnel #05a34a, géométrie 4px, filets 1px, une ombre de carte,
+   base 14px, titres en poids 500, aucun dégradé, aucun violet.
+   Toute couleur / espacement / rayon de l'application dérive d'un jeton ci-dessous.
+   ========================================================================== */
+:root {
+    /* ---- Marque (vert BMCI) ---- */
+    --bcm-primary:       #05a34a;
+    --bcm-primary-700:   #04833b;
+    --bcm-primary-800:   #036630;
+    --bcm-primary-050:   #e8f6ee;
+    --bcm-primary-100:   #cfead9;
+
+    /* ---- Neutres institutionnels ---- */
+    --bcm-text:          #222a30;
+    --bcm-text-muted:    #67727b;
+    --bcm-bg:            #f3f5f7;
+    --bcm-surface:       #ffffff;
+    --bcm-surface-alt:   #f7f9fa;
+    --bcm-border:        #e3e8ec;
+    --bcm-border-strong: #d3dade;
+    --bcm-on-primary:    #ffffff;
+
+    /* ---- Sémantique ---- */
+    --bcm-success:       #05a34a;
+    --bcm-success-050:   #e8f6ee;
+    --bcm-warning:       #9a6b00;
+    --bcm-warning-050:   #fbf1d9;
+    --bcm-danger:        #cf3125;
+    --bcm-danger-050:    #fbeae8;
+    --bcm-info:          #1567a4;
+    --bcm-info-050:      #e7f1f8;
+
+    /* ---- Géométrie ---- */
+    --bcm-radius:        4px;
+    --bcm-radius-sm:     2px;
+    --bcm-radius-lg:     6px;
+    --bcm-radius-pill:   999px;
+    --bcm-border-w:      1px;
+
+    /* ---- Ombres (une seule ombre de carte) ---- */
+    --bcm-shadow-card:   0 1px 2px rgba(17,24,28,.05), 0 1px 3px rgba(17,24,28,.07);
+    --bcm-shadow-pop:    0 6px 24px rgba(17,24,28,.14);
+
+    /* ---- Espacement (base 4px) ---- */
+    --bcm-space-1:       4px;
+    --bcm-space-2:       8px;
+    --bcm-space-3:       16px;
+    --bcm-space-4:       24px;
+    --bcm-space-5:       32px;
+    --bcm-space-6:       48px;
+
+    /* ---- Typographie ---- */
+    --bcm-font-sans:     'Tajawal', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --bcm-fs-xs:         12px;
+    --bcm-fs-sm:         13px;
+    --bcm-fs-base:       14px;
+    --bcm-fs-md:         16px;
+    --bcm-fs-lg:         18px;
+    --bcm-fs-xl:         22px;
+    --bcm-fs-2xl:        28px;
+    --bcm-fw-regular:    400;
+    --bcm-fw-medium:     500;
+    --bcm-fw-bold:       700;
+    --bcm-lh:            1.6;
+}
